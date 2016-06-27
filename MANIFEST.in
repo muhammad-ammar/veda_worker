@@ -1,1 +1,4 @@
 include README.rst
+include VEDA_TESTFILES/*.mp4
+include VEDA_TESTFILES/*.jpg
+include

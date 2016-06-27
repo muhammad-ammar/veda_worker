@@ -12,7 +12,7 @@ from reporting import ErrorObject, TestReport
 from config import Settings
 from pipeline import Pipeline
 
-from 
+# from 
 
 ##TODO: Clean up workdir (intelligently)
 
