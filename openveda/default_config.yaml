@@ -1,0 +1,27 @@
+#-----------------------------------------------------
+# This is a configable YAML file for instance defaults
+#-----------------------------------------------------
+
+#--------------
+# Environmental
+#--------------
+workdir: 
+
+#-----
+# AWS
+#-----
+aws_access_key: 
+aws_secret_key: 
+aws_deliver_bucket: 
+aws_storage_bucket: 
+aws_ingest_bucket: 
+
+#-----
+# API
+#-----
+val_token_url: 
+val_api_url: 
+val_client_id: 
+val_secret_key: 
+val_username: 
+val_password: 

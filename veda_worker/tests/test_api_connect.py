@@ -1,6 +1,7 @@
 
 import os
 import sys
+import unittest
 import requests
 import ast
 
@@ -13,149 +14,93 @@ was tested as an XOR, but can be modded to
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import generate_apitoken
-
-from reporting import ErrorObject, TestReport
-
-
-
-class ConnectionTest():
-    
-    def __init__(self, Settings, **kwargs):
-        self.Settings = Settings
-        self.passed = False
-        self.val_test = kwargs.get('val_test', False)
-        self.veda_test = kwargs.get('veda_test', False)
-
-        '''veda/val test should be sent as XOR'''
-
-        if self.val_test is True:
-            test_name = 'VAL API Link Test'
-            self.passed = self.val_connection_test()
-            TestReport(self.passed, test_name)
-
-        if self.veda_test is True:
-            test_name = 'VEDA API Link Test'
-            self.passed = self.veda_connection_test()
-            TestReport(self.passed, test_name)
+from config import WorkerSetup
+from reporting import ErrorObject
 
 
-    def api_setup_test(self, api):
-        if api == 'VAL':
-            if self.Settings.VAL_ATTACH is False:
-                return False
+class TestAPIConnection(unittest.TestCase):
 
-            salient_variables = [
-                'VAL_TOKEN_URL', 
-                'VAL_API_URL',
-                'VAL_CLIENT_ID',
-                'VAL_CLIENT_SECRET', 
-                'VAL_USERNAME',
-                'VAL_USERPASS',
-                ]
-            for s in salient_variables:
-                if len(eval('self.Settings.' + s)) == 0:
-                    raise ErrorObject(
-                        method = self,
-                        message = s
-                        )
-                    return False
-
-        elif api == 'VEDA':
-            if self.Settings.NODE_VEDA_ATTACH is False:
-                return False
-
-            salient_variables = [
-                'VEDA_API_CLIENTID',
-                'VEDA_API_CLIENTSECRET',
-                'VEDA_TOKEN_URL',
-                'VEDA_API_URL',
-                'VEDA_API_URL',
-                ]
-
-            for s in salient_variables:
-                if len(eval('self.Settings.' + s)) == 0:
-                    raise ErrorObject(
-                        method = self,
-                        message = s
-                        )
-                    return False
-
-        return True
+    def setUp(self):
+        self.WS = WorkerSetup()
+        if os.path.exists(self.WS.instance_yaml):
+            self.WS.run()
+        self.settings = self.WS.settings_dict
 
 
-    def val_connection_test(self):
-        setup = self.api_setup_test(api='VAL')
-        if setup is False: return False
+    def test_val_setup(self):
+        if not os.path.exists(self.WS.instance_yaml):
+            self.assertTrue(True)
+            return None
 
-        self.val_token = generate_apitoken.val_tokengen(Settings=self.Settings)
-        if self.val_token == None:
-            raise ErrorObject(
-                method=self,
-                message='VAL USER/PASS'
-                )
-            return False
+        salient_variables = [
+            'val_api_url', 
+            'val_client_id',
+            'val_password',
+            'val_secret_key', 
+            'val_username',
+            'val_token_url',
+            ]
+        for s in salient_variables:
+            self.assertTrue(len(self.WS.settings_dict[s]) > 0)
+
+
+    def test_veda_setup(self):
+        if not os.path.exists(self.WS.instance_yaml):
+            self.assertTrue(True)
+            return None
+
+        salient_variables = [
+            'veda_api_url', 
+            'veda_auth_url',
+            'veda_client_id',
+            'veda_secret_key', 
+            'veda_token_url',
+            ]
+        for s in salient_variables:
+            self.assertTrue(len(self.WS.settings_dict[s]) > 0)
+
+
+
+    def test_val_connection(self):
+        if not os.path.exists(self.WS.instance_yaml):
+            self.assertTrue(True)
+            return None
+
+        val_token = generate_apitoken.val_tokengen()
+        self.assertFalse(val_token == None)
 
         headers = {
-            'Authorization': 'Bearer ' + self.val_token, 
+            'Authorization': 'Bearer ' + val_token, 
             'content-type': 'application/json'
             }
-        try:
-            s = requests.get(self.Settings.VAL_API_URL, headers=headers, timeout=20)
-        except:
-            raise SetupError(
-                method=self,
-                varbls='VAL URL'
-                )
-            return False
+        s = requests.get(self.WS.settings_dict['val_api_url'], headers=headers, timeout=20)
 
-        if s.status_code > 299:
-            raise ErrorObject(
-                method=self,
-                message='VAL URL'
-                )
-            return False
-
-        return True
+        self.assertFalse(s.status_code == 404)
+        self.assertFalse(s.status_code > 299)
 
 
-    def veda_connection_test(self):
-        setup = self.api_setup_test(api='VEDA')
-        if setup is False: return False
+    def test_veda_connection(self):
+        if not os.path.exists(self.WS.instance_yaml):
+            self.assertTrue(True)
+            return None
 
-        self.veda_token = generate_apitoken.veda_tokengen(Settings=self.Settings)
-        if self.veda_token == None:
-            return False        
-        ## Generate Token
+        veda_token = generate_apitoken.veda_tokengen()
+        self.assertFalse(veda_token == None)
 
         headers = {
-            'Authorization': 'Bearer ' + self.veda_token, 
+            'Authorization': 'Bearer ' + veda_token,
             'content-type': 'application/json'
             }
-        try:
-            s = requests.get(self.Settings.VEDA_API_URL, headers=headers, timeout=20)
-        except:
-            raise ErrorObject(
-                method=self,
-                message='VEDA API URL'
-                )
-            return False
+        s = requests.get(self.WS.settings_dict['veda_api_url'], headers=headers, timeout=20)
 
-        if s.status_code > 299:
-            raise ErrorObject(
-                method=self,
-                message='VEDA API CONNECTION'
-                )
-            return False
-
-        return True
+        self.assertFalse(s.status_code == 404)
+        self.assertFalse(s.status_code > 299)
 
 
-"""
-Just for writing and testing
-"""
+
+
 def main():
-    NCE1 = ConnectionTest(val_test = True, veda_test = True)
-
+    unittest.main()
 
 if __name__ == '__main__':
     sys.exit(main())

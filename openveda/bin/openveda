@@ -1,0 +1,148 @@
+#!/usr/bin/env python
+import os
+import sys
+import argparse
+
+"""
+OpenVeda : A purpose-built tool to transcode video 
+for instances of the edX platform.
+Copyright (C) 2016 @yro | Gregory Martin
+
+Command Line Interface
+"""
+from openveda import OpenVeda
+
+
+
+class OpenVedaCli():
+
+
+    def __init__(self):
+        self.args = None
+        self.mezz_video = None
+        self.hls = False
+        self.config = False
+        self.test = False
+        self.course_url = None
+
+
+    def get_args(self):
+        parser = argparse.ArgumentParser()
+        parser.usage = '''
+        {cmd} -v Sourcefile
+        {cmd} -config Configure
+        {cmd} -test Test
+        {cmd} -hls HLS
+        [-t -config -v -hls]
+        To transcode, use -v s3_file_name.
+        Use --help to see all options.
+        '''.format(cmd=sys.argv[0])
+
+        parser.add_argument(
+            '-v', '--videofile', default=None, 
+            help='filename (only) for source video file'
+            )
+
+        parser.add_argument(
+            '-config', '--configure', 
+            help='Configure Instance Credentials (one time)', 
+            action='store_true'
+            )
+
+        parser.add_argument(
+            '-t', '--test', 
+            help='Test Configuration of Instance', 
+            action='store_true'
+            )
+        parser.add_argument(
+            '-hls', '--hls_transport', 
+            help='HLS Transport Flag', 
+            action='store_true'
+            )
+
+        parser.add_argument(
+            '-u', '--course_url', default=None,
+            help='URL to edx-studio course build instance' 
+            )
+
+        self.args = parser.parse_args()
+
+        self._PARSE_ARGS()
+
+
+    def _PARSE_ARGS(self):
+        self.mezz_video = self.args.videofile
+        self.hls = self.args.hls_transport
+        self.test = self.args.test
+        self.config = self.args.configure
+        self.course_url = self.args.course_url
+
+
+    def _RUN(self):
+        """
+        run actual instance
+        """
+        OV = OpenVeda(
+            mezz_video=self.mezz_video
+            )
+
+        if self.config is True:
+            OV.config()
+
+        if self.test is True:
+            """
+            Couldn't get this to run nose inside, so out we go
+            """
+            os.chdir(
+                os.path.join(
+                    os.path.dirname(
+                        os.path.dirname(os.path.abspath(__file__))
+                        ),
+                    os.path.join('openveda', 'tests')
+                    )
+                )
+            os.system('nosetests')
+
+        OV.hls = self.hls
+        OV.course_url = self.course_url
+
+        if self.mezz_video is not None:
+            OV.run()
+
+        print '%s : %s%s%s' % (
+            'Video ID', 
+            '\033[94m', 
+            OV.video_id, 
+            '\033[0m'
+            )
+        print '----------------'
+        print '%s : %s%s%s' % (
+            'Video Valid', 
+            '\033[94m', 
+            OV.valid,
+            '\033[0m'
+            )
+        print '%s : %s%s%s' % (
+            'Pipeline Complete', 
+            '\033[94m', 
+            OV.complete,
+            '\033[0m'
+            )
+
+
+
+def main():
+    print 'OPENVEDA'
+    print 'OpenVeda Copyright (C) 2016 @yro \
+    This program comes with ABSOLUTELY NO WARRANTY;. \
+    This is free software, and you are welcome to redistribute it \
+    under certain conditions.'
+    print '---'
+    OVC = OpenVedaCli()
+    OVC.get_args()
+    OVC._RUN()
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+
