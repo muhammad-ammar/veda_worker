@@ -7,6 +7,9 @@ Worker node clone for edx-VEDA
 [ALPHA] / 2016.08
 ~~~~~~~~~~~~~~~~
 
+.. image:: https://travis-ci.org/yro/veda_worker.svg?branch=build_1
+    :target: https://travis-ci.org/yro/veda_worker
+
 --------------
 
 Installation

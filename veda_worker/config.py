@@ -86,21 +86,18 @@ class WorkerSetup():
                     )
                 return None
 
-        self.settings_dict = {}
+        output_dict = {}
 
         for j, k in config_dict.iteritems():
             sys.stdout.write('\r')
-            sys.stdout.write('%s : \n' % (j))
-
-            new_value = raw_input('%s :' % (k))
-
-            self.settings_dict[k] = new_value
+            new_value = raw_input('%s :' % (j))
+            output_dict[j] = new_value
             sys.stdout.flush()
 
         with open(self.instance_yaml, 'w') as outfile:
             outfile.write(
                 yaml.dump(
-                    self.settings_dict, 
+                    output_dict, 
                     default_flow_style=False
                     )
                 )

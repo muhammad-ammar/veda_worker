@@ -8,39 +8,27 @@
 # AWS
 #-----
 # AWS Storage Information
-# S3_ASSET_STORE (make default based on filled info)
 aws_access_key: ''
 aws_secret_key: ''
 aws_storage_bucket: ''
-# MEZZ_INGEST_LOCATION
-# aws_ingest_bucket: ''
-
 # AWS Delivery Information
 aws_deliver_access_key: ''
 aws_deliver_secret_key: ''
 aws_deliver_bucket: ''
 
-
 #-----
 # Node commands
 #-----
 celery_app_name: ''
-# CELERY_APP_NAME
 celery_queue: ''
-# CELERY_QUEUE
 rabbitmq_user: ''
-# RABBIT_USER = ""
 rabbitmq_pass: ''
-# RABBIT_PASS = ""
 rabbitmq_broker: ''
-# RABBIT_BROKER = ""
-
 
 #-----
 # API
 #-----
 # VEDA Information
-# NODE_VEDA_ATTACH (make defaults from below)
 veda_token_url: ''
 veda_auth_url: ''
 veda_api_url: ''
@@ -48,7 +36,6 @@ veda_client_id: ''
 veda_secret_key: ''
 
 # VAL Information
-val_attach: ''
 val_client_id: ''
 val_secret_key: ''
 val_token_url: ''

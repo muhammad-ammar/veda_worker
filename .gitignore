@@ -3,14 +3,3 @@ instance_config.yaml
 
 *.pyc
 
-README_ESKEW.md
-
-sample_settings.py
-
-MAINT.sh
-
-NOTES.sh
-
-INSTALL_NOTES.sh
-
-openveda/openveda/ec2_test.py
