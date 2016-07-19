@@ -12,3 +12,5 @@ MAINT.sh
 NOTES.sh
 
 INSTALL_NOTES.sh
+
+openveda/openveda/ec2_test.py

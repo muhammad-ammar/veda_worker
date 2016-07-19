@@ -12,7 +12,7 @@ from reporting import ErrorObject, TestReport
 from config import Settings
 from pipeline import Pipeline
 
-class OpenVeda():
+class VedaWorker():
 
     def __init__(self, veda_id, **kwargs):
         """
@@ -24,7 +24,7 @@ class OpenVeda():
             )
         self.veda_id = veda_id
         self.mezz_video = kwargs.get('mezz_video', None)
-        
+
         # kwargs.get('mezz_video', None)
         # workdir = kwargs.get('workdir', os.path.join(os.getcwd(), 'VEDA_WORKING'))
         # settings_file = kwargs.get('settings_file', None)

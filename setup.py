@@ -8,36 +8,20 @@ def readme():
         return f.read()
 
 
-class FFInstall(install):
-    """
-    Should drop a compiled version of ffmpeg into this without too much hassle
-
-    NOTE : this bin won't run reliably on most systems, so I'm including instructions to compile ffmpeg
-    in the readme
-    **
-    """
-    def run(self):
-        install.run(self)
-        os.system('wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz')
-        os.system('tar -xf ffmpeg-release-64bit-static.tar.xz')
-
-
 setup(
-    name='openveda',
+    name='veda_worker',
     version='0.1',
-    description='Single stream video encode for openedx',
+    description='Node worker for VEDA',
     long_description=readme(),
-    url='http://github.com/yro/openveda',
+    url='http://github.com/yro/veda_worker',
     author='@yro',
-    author_email='greg@edx.org',
+    author_email='greg@willowgrain.io',
     license='',
-    packages=['openveda'],
+    packages=['veda_worker'],
     install_requires=[
         'boto',
         'requests',
         'pysftp',
     ],
-    ## dependency_links=['http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz'],
-    ## cmdclass={'install': FFInstall},
     zip_safe=False
     )
