@@ -5,107 +5,147 @@ import json
 import yaml
 
 """
-This will read a default yaml file and output to a instance-specific file, 
-to be read by processes as needed
+This will read a default yaml file and generate a config class 
+based on variables within
 
 """
+from reporting import ErrorObject
 
-"""
-Get Default encodes from master dir
-"""
+class VEDAConfig():
 
-"""
-set up environment
-
-"""
-
-"""
-Configure VDC instance, or read config'd settings into class
-
-"""
-setup_list = {
-    # Storage
-    'STORAGE: bucket name' : 'aws_storage_bucket',
-    'STORAGE: Access key' : 'aws_access_key',
-    'STORAGE: Secret key' : 'aws_secret_key',
-    # Ingest
-    'INGEST: bucket name' : 'aws_ingest_bucket',
-    # Delivery
-    'DELIVERY: Bucket Name' : 'aws_deliver_bucket',
-    'DELIVERY: Access Key' : 'aws_deliver_access_key',
-    'DELIVERY: Secret Key' : 'aws_deliver_secret_key',
-    # VAL
-    'VAL: Token URL' : 'val_token_url',
-    'VAL: API URL' : 'val_api_url',
-    'VAL: Username' : 'val_username',
-    'VAL: Pass' : 'val_password',
-    'VAL: Client ID' : 'val_client_id',
-    'VAL: Secret Key' : 'val_secret_key',
-    # VEDA
-    'VEDA: Auth URL' : 'veda_auth_url',
-    'VEDA: Token URL' : 'veda_token_url',
-    'VEDA: API URL' : 'veda_api_url',
-    'VEDA: Client ID' : 'veda_client_id',
-    'VEDA: Secret Key' : 'veda_secret_key'
-}
+    config = None
 
 
 
-class OVConfig():
+class WorkerSetup():
 
-    def __init__(self, configure=False): #, **kwargs):
-        """
-        Attempt to open and read yaml file
-
-        """
-        self.configure = configure
-
-        ## Defaults
-        self.default_yaml = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), 
-            'default_config.yaml'
+    def __init__(self, **kwargs):
+        self.instance_yaml = kwargs.get(
+            'instance_yaml', 
+            os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                'instance_config.yaml'
+                )
             )
-        self.settings_yaml = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), 
-            'instance_config.yaml'
+        self.default_yaml = kwargs.get(
+            'default_yaml', 
+            os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                'default_config.yaml'
+                )
             )
-        self.settings_dict = {}
-        self.encode_library = None
 
+        self.setup = kwargs.get('setup', False)
+
+
+    def run(self):
         """
-        Run
+        Generate Settings dict
         """
-        if self.configure is True:
+        if self.setup is False and not os.path.exists(self.instance_yaml):
+            self._CONFIGURE()
+        elif self.setup is True:
             self._CONFIGURE()
         else:
             self._READ_SETTINGS()
 
 
+# # """
+# # Get Default encodes from master dir
+# # """
+
+# # """
+# # set up environment
+
+# # """
+
+# # """
+# # Configure VDC instance, or read config'd settings into class
+
+# # """
+# # # setup_list = {
+# # #     # Storage
+# # #     'STORAGE: bucket name' : 'aws_storage_bucket',
+# # #     'STORAGE: Access key' : 'aws_access_key',
+# # #     'STORAGE: Secret key' : 'aws_secret_key',
+# # #     # Ingest
+# # #     'INGEST: bucket name' : 'aws_ingest_bucket',
+# # #     # Delivery
+# # #     'DELIVERY: Bucket Name' : 'aws_deliver_bucket',
+# # #     'DELIVERY: Access Key' : 'aws_deliver_access_key',
+# # #     'DELIVERY: Secret Key' : 'aws_deliver_secret_key',
+# # #     # VAL
+# # #     'VAL: Token URL' : 'val_token_url',
+# # #     'VAL: API URL' : 'val_api_url',
+# # #     'VAL: Username' : 'val_username',
+# # #     'VAL: Pass' : 'val_password',
+# # #     'VAL: Client ID' : 'val_client_id',
+# # #     'VAL: Secret Key' : 'val_secret_key',
+# # #     # VEDA
+# # #     'VEDA: Auth URL' : 'veda_auth_url',
+# # #     'VEDA: Token URL' : 'veda_token_url',
+# # #     'VEDA: API URL' : 'veda_api_url',
+# # #     'VEDA: Client ID' : 'veda_client_id',
+# # #     'VEDA: Secret Key' : 'veda_secret_key'
+# # # }
+
+
+
+# # class OVConfig():
+
+#     # def __init__(self, configure=False): #, **kwargs):
+#         # """
+#         # Attempt to open and read yaml file
+
+#         # """
+        
+
+#         ## Defaults
+#         self.default_yaml = os.path.join(
+#             os.path.dirname(os.path.dirname(__file__)), 
+#             'default_config.yaml'
+#             )
+#         self.settings_yaml = os.path.join(
+#             os.path.dirname(os.path.dirname(__file__)), 
+#             'instance_config.yaml'
+#             )
+#         self.settings_dict = {}
+#         self.encode_library = None
+
+        # """
+        # Run
+        # """
+        # if self.configure is True:
+        #     self._CONFIGURE()
+        # else:
+        #     self._READ_SETTINGS()
+
+
     def _READ_SETTINGS(self):
+        # print 'POOP'
         """
         Read Extant Settings or Generate New Ones
         """
-        if not os.path.exists(self.settings_yaml):
-            # ## TODO: ERROR MESSAGES
-            # print '[ ERROR ] : Not Configured'
+        if not os.path.exists(self.instance_yaml):
+            ErrorObject.print_error(
+                message = 'Not Configured'
+                )
             return None
 
-        with open(self.settings_yaml, 'r') as stream:
+        with open(self.instance_yaml, 'r') as stream:
             try:
                 self.settings_dict = yaml.load(stream)
-                if len(self.settings_dict['workdir']) == 0:
-                    self.settings_dict['workdir'] = os.path.join(
-                        os.getcwd(), 
-                        'VEDA_WORKING'
-                        )
 
             except yaml.YAMLError as exc:
-                ## TODO: ERROR MESSAGES
-                print '[ ERROR ] : YAML config'
+                ErrorObject.print_error(
+                    message = 'Config YAML read error'
+                    )
+
                 return None
 
 
     def _CONFIGURE(self):
+        print 'FART'
         """
         Prompt user for settings as needed for yaml
         """
@@ -113,40 +153,41 @@ class OVConfig():
             try:
                 config_dict = yaml.load(stream)
             except yaml.YAMLError as exc:
-                ## TODO: ERROR MESSAGES
-                print '[ ERROR ] : YAML defaults'
+                ErrorObject.print_error(
+                    message = 'default YAML read error'
+                    )
                 return None
 
-        self.settings_dict = config_dict
+        self.settings_dict = {}
 
-        for j, k in setup_list.iteritems():
+        for j, k in config_dict.iteritems():
             sys.stdout.write('\r')
             sys.stdout.write('%s : \n' % (j))
+
             new_value = raw_input('%s :' % (k))
-            if new_value == None:
-                new_value = ''
+
             self.settings_dict[k] = new_value
             sys.stdout.flush()
 
-        with open(self.settings_yaml, 'w') as outfile:
+        with open(self.instance_yaml, 'w') as outfile:
             outfile.write(
                 yaml.dump(
                     self.settings_dict, 
                     default_flow_style=False
                     )
                 )
-        self._READ_SETTINGS()
-        self.ENCODE_PROFILES = self._READ_ENCODES()
+    #     self._READ_SETTINGS()
+    #     self.ENCODE_PROFILES = self._READ_ENCODES()
 
-    def _READ_ENCODES(self):
-        if self.encode_library == None:
-            self.encode_library = os.path.join(
-                os.path.dirname(os.path.dirname(__file__)), 
-                'default_encode_profiles.json'
-                )
-        with open(self.encode_library) as data_file:
-            data = json.load(data_file)
-            return data["ENCODE_PROFILES"]
+    # def _READ_ENCODES(self):
+    #     if self.encode_library == None:
+    #         self.encode_library = os.path.join(
+    #             os.path.dirname(os.path.dirname(__file__)), 
+    #             'default_encode_profiles.json'
+    #             )
+    #     with open(self.encode_library) as data_file:
+    #         data = json.load(data_file)
+    #         return data["ENCODE_PROFILES"]
 
 
 
@@ -279,7 +320,8 @@ def main():
     """
     For example
     """
-    V = OVConfig()
+    V = WorkerSetup()
+    V.run()
 
 
 if __name__ == '__main__':

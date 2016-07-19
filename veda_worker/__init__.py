@@ -12,38 +12,40 @@ from reporting import ErrorObject, TestReport
 from config import Settings
 from pipeline import Pipeline
 
-# from 
-
-##TODO: Clean up workdir (intelligently)
-
 class OpenVeda():
 
-    def __init__(self, **kwargs):
+    def __init__(self, veda_id, **kwargs):
         """
         Init settings / 
         """
-        workdir = kwargs.get('workdir', os.path.join(os.getcwd(), 'VEDA_WORKING'))
-
-
-
-        # settings_file = kwargs.get('settings_file', None)
-        self.mezz_video = kwargs.get('mezz_video', None)
-        encode_library = kwargs.get('encode_library', None)
-        # self.encode_profile = kwargs.get('encode_profile', None)
-        self.Settings = Settings(
-            node_config=settings_file, 
-            encode_library=encode_library
+        self.workdir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            'VEDA_WORKING'
             )
-        self.Settings.activate()
+        self.veda_id = veda_id
+        self.mezz_video = kwargs.get('mezz_video', None)
+        
+        # kwargs.get('mezz_video', None)
+        # workdir = kwargs.get('workdir', os.path.join(os.getcwd(), 'VEDA_WORKING'))
+        # settings_file = kwargs.get('settings_file', None)
+
+        # self.mezz_video = 
+        # encode_library = kwargs.get('encode_library', None)
+        # # self.encode_profile = kwargs.get('encode_profile', None)
+        # self.Settings = Settings(
+        #     node_config=settings_file, 
+        #     encode_library=encode_library
+        #     )
+        # self.Settings.activate()
 
 
 
 
-        self.Pipeline = None
+        # self.Pipeline = None
         ## Yeah, I know
-        for key, value in kwargs.items():
-            if key != 'settings':
-                setattr(self.Settings, key, value)
+        # for key, value in kwargs.items():
+            # if key != 'settings':
+                # setattr(self.Settings, key, value)
 
 
     def activate(self):
