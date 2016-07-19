@@ -11,14 +11,7 @@ based on variables within
 """
 from reporting import ErrorObject
 
-# class VEDAConfig():
-
-    # config = None
-
-
-
 class WorkerSetup():
-
 
     def __init__(self, **kwargs):
         self.instance_yaml = kwargs.get(
@@ -37,6 +30,7 @@ class WorkerSetup():
             )
 
         self.setup = kwargs.get('setup', False)
+        self.settings_dict = {}
 
 
     def run(self):
@@ -101,6 +95,10 @@ class WorkerSetup():
                     default_flow_style=False
                     )
                 )
+
+        self.settings_dict = output_dict
+
+
 
 
 def main():

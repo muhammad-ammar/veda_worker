@@ -20,7 +20,7 @@ class BuildTest(unittest.TestCase):
             )
 
 
-    def test_default(self):
+    def test_defaults(self):
 
         with open(self.default_yaml, 'r') as stream:
             try:
