@@ -5,12 +5,6 @@ import sys
 """
 Globals
 
-
-*************************************************
-
-** YOU PROBABLY DON'T NEED ANYTHING UNDER HERE **
-
-*************************************************
 """
 
 ## TODO: Logging
@@ -53,9 +47,3 @@ NODE_COLORS_GREEN = '\033[92m'
 NODE_COLORS_RED = '\033[91m'
 NODE_COLORS_END = '\033[0m'
 
-# DEFAULT_YAML = os.path.join(
-#     os.path.dirname(
-#         os.path.dirname(os.path.abspath(__file__))
-#         ),
-#     'default_config.yaml'
-#     )
