@@ -22,28 +22,28 @@ from abstractions import Video
 from reporting import ErrorObject, TestReport
 
 
-class Ingest():
-    """
-    This should pull in a file to the workdir, and generate a VideoObject
+# class Ingest():
+#     """
+#     This should pull in a file to the workdir, and generate a VideoObject
 
-    NOTE/TODO: 'ingest' is passed as a kwarg, 
-    but should test against config AS WELL as being a kwarg
-    """
+#     NOTE/TODO: 'ingest' is passed as a kwarg, 
+#     but should test against config AS WELL as being a kwarg
+#     """
 
-    def __init__(self, Settings, mezz_video, **kwargs):
-        self.Settings = Settings
-        self.mezz_video = mezz_video
-        self.ingest = kwargs.get('ingest', False)
-        self.hotstore = kwargs.get('hotstore', False)
+#     def __init__(self, Settings, mezz_video, **kwargs):
+#         self.Settings = Settings
+#         self.mezz_video = mezz_video
+#         self.ingest = kwargs.get('ingest', False)
+#         self.hotstore = kwargs.get('hotstore', False)
 
-        '''
-         * RUN
-        '''
-        self.VideoObject = Video(
-            Settings = self.Settings
-            )
+#         '''
+#          * RUN
+#         '''
+#         self.VideoObject = Video(
+#             Settings = self.Settings
+#             )
 
-        self.passed = False 
+#         self.passed = False 
 
 
     def activate(self):
@@ -52,8 +52,8 @@ class Ingest():
         to clean up filepaths, keys, and s3 dir objects
         """
 
-        if self.Settings.NODE_VEDA_ATTACH is True:
-            self.VideoObject.video_id = self.mezz_video
+        # if self.Settings.NODE_VEDA_ATTACH is True:
+            # self.VideoObject.video_id = self.mezz_video
             self.VideoObject.activate()
             source = '.'.join((self.mezz_video, self.VideoObject.mezz_extension))
             self.passed = self._s3_asset_intake(source)

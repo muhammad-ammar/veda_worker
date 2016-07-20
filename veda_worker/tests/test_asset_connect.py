@@ -1,168 +1,92 @@
 
 import os
 import sys
-import requests
+import unittest
 from boto.s3.connection import S3Connection
 
 
 """
 Test for deliverable connection
+set to pass if instance_config.yaml is missing
 
 """
 
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from reporting import ErrorObject, TestReport
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
+from reporting import ErrorObject
+from config import WorkerSetup
 
 
-class AssetConnection():
+class TestAssetConnection(unittest.TestCase):
     
-    def __init__(self, Settings):
-        self.Settings = Settings
-
-        self.multiserver = False
-        self.hotstore = False
-        self.ingest = False
-        self.deliver = False
-
-        self.passed = self.test_broker()
+    def setUp(self):
+        self.WS = WorkerSetup()
+        if os.path.exists(self.WS.instance_yaml):
+            self.WS.run()
+        self.settings = self.WS.settings_dict
 
 
-    def test_broker(self):
-        setup = self.asset_setup_test()
-        # print setup
-        if setup is False: return False
-        ## Asset Location
-        if self.Settings.S3_ASSET_STORE is False:
-            if len(self.Settings.MEZZ_HOTSTORE_LOCATION) == 0:
-                 self.hotstore = False
-            else:
-                self.hotstore = self._http_test(location=self.Settings.MEZZ_HOTSTORE_LOCATION)
-        else:
-            self.hotstore = self._s3_test(location=self.Settings.MEZZ_HOTSTORE_LOCATION)
-
-        ## Ingest
-        if len(self.Settings.MEZZ_INGEST_LOCATION) != 0:
-            if 'http' in self.Settings.MEZZ_INGEST_LOCATION:
-                self.ingest = self._http_test(location=sself.Settings.MEZZ_INGEST_LOCATION)
-            else:
-                self.ingest = self._s3_test(location=self.Settings.MEZZ_INGEST_LOCATION)
-
-        ## Delivery
-        if self.multiserver is False:
-            self.deliver = True
-            return True
-
-        if self.Settings.S3_DELIVER is True:
-            self.deliver = self._s3_test(location=self.Settings.DELIVERY_ENDPOINT)
-        else:
-            self.deliver = self._http_test(location=self.Settings.DELIVERY_ENDPOINT)
-        return True
-
-        if not os.path.exists(self.Settings.VEDA_WORK_DIR):
-            os.mkdir(self.Settings.VEDA_WORK_DIR)
-
-
-    def asset_setup_test(self):
-        """
-        This one's slighly more complicated -- 
-        as the DELIVERY_ID and DELIVERY_PASS variables default 
-        to the S3 ingest/hotstore credentials if left blank
-
-        """
-        if len(self.Settings.MEZZ_INGEST_LOCATION) > 0 and \
-        len(self.Settings.MEZZ_HOTSTORE_LOCATION) == 0:
-            raise ErrorObject(
-                message = 'HOTSTORE/INGEST setup',
-                method=self
-                )
-
+    def test_storage_setup(self):
+        if not os.path.exists(self.WS.instance_yaml):
+            return None
+        
         salient_variables = [
-            'S3_ACCESS_KEY_ID',
-            'S3_SECRET_ACCESS_KEY',
-            'MEZZ_HOTSTORE_LOCATION'
+            'aws_deliver_access_key',
+            'aws_deliver_secret_key',
+            'aws_deliver_bucket'
             ]
-        if self.Settings.S3_ASSET_STORE is True:
-            for s in salient_variables:
+        for s in salient_variables:
+            self.assertTrue(len(self.settings[s]) > 0)
 
-                if len(eval('self.Settings.' + s)) == 0:
-                    raise ErrorObject(
-                        method=self,
-                        message=s
-                        )
-                    return False
 
-        if self.Settings.DELIVERY_ID == self.Settings.S3_ACCESS_KEY_ID:
-            return True
-
-        self.multiserver = True
+    def test_delivery_setup(self):
+        if not os.path.exists(self.WS.instance_yaml):
+            return None
 
         salient_variables = [
-            'DELIVERY_ID',
-            'DELIVERY_PASS',
-            'DELIVERY_ENDPOINT'
+            'aws_access_key',
+            'aws_secret_key',
+            'aws_storage_bucket'
             ]
 
         for s in salient_variables:
-            if len(eval(s)) == 0:
-                """
-                This just means we won't deliver, but shouldn't 
-                throw an ErrorObject
-                """
-                return False
-
-        return True
+            self.assertTrue(len(self.settings[s]) > 0)
 
 
-    def _http_test(self, location):
-        if 'http' not in location:
-            if os.path.exists(location):
-                return True
-            raise ErrorObject(
-                method=self,
-                message='%s : %s' % ('NOT URL', location)
-                )
-            return False
+    def test_storage_connection(self):
+        if not os.path.exists(self.WS.instance_yaml):
+            return None
+
+        conn = S3Connection(
+            self.settings['aws_access_key'], 
+            self.settings['aws_secret_key']
+            )
         try:
-            s = requests.head(location)    
+            bucket = conn.get_bucket(self.settings['aws_storage_bucket'])
+            self.assertTrue(True)
         except:
-            raise ErrorObject(
-                method=self,
-                message='%s : %s' % ('NOT VALID URL', location)
-                )
-            return False
-        if s.status_code > 399:
-            raise ErrorObject(
-                method=self,
-                message='%s : %s' % ('URL CONN PROBLEM', location)
-                )
-            return False
-        return True
+            self.assertFalse(True)
 
-                        
 
-    def _s3_test(self, location):
-        if self.multiserver is True:
-            conn = S3Connection(self.Settings.DELIVERY_ID, self.Settings.DELIVERY_PASS)
-        else:
-            conn = S3Connection(self.Settings.S3_ACCESS_KEY_ID, self.Settings.S3_SECRET_ACCESS_KEY)
+    def test_delivery_connection(self):
+        if not os.path.exists(self.WS.instance_yaml):
+            return None
+
+        conn = S3Connection(
+            self.settings['aws_deliver_access_key'], 
+            self.settings['aws_deliver_secret_key']
+            )
         try:
-            bucket = conn.get_bucket(location)
+            bucket = conn.get_bucket(self.settings['aws_deliver_bucket'])
+            self.assertTrue(True)
         except:
-            raise ErrorObject(
-                method=self,
-                message='%s : %s' % ('S3 BUCKET PROBLEM', location)
-                )
-            return False
+            self.assertFalse(True)
 
-        return True
-        
+
 
 def main():
-    pass
-
-
-
-
+    unittest.main()
 
 if __name__ == '__main__':
     sys.exit(main())

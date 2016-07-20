@@ -6,42 +6,51 @@ import sys
 Actual transcode pipeline
 
 """
-from reporting import ErrorObject, TestReport
-from abstractions import AbstractionLayer, Encode
-from config import Settings
-import generate_apitoken
+from reporting import ErrorObject
+from config import WorkerSetup
+WS = WorkerSetup()
+if os.path.exists(WS.instance_yaml):
+    WS.run()
+settings = WS.settings_dict
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'pipeline'))
-from pipeline_ingest import Ingest
-from pipeline_qa import QAVideo
-from pipeline_val import VALData
-from pipeline_veda import VEDAData
-from pipeline_encode_generate import CommandGenerate
-from pipeline_encode_execute import CommandExecute
-from pipeline_deliver import Deliverable
+
+
+# from reporting import ErrorObject
+# from abstractions import AbstractionLayer, Encode
+# from config import Settings
+# import generate_apitoken
+
+# sys.path.append(os.path.join(os.path.dirname(__file__), 'pipeline'))
+# from pipeline_ingest import Ingest
+# from pipeline_qa import QAVideo
+# from pipeline_val import VALData
+# from pipeline_veda import VEDAData
+# from pipeline_encode_generate import CommandGenerate
+# from pipeline_encode_execute import CommandExecute
+# from pipeline_deliver import Deliverable
 
 
 class Pipeline():
 
-    def __init__(self, Settings, mezz_video, **kwargs):
-        self.Settings = Settings
+    def __init__(self, video_id, **kwargs):
+        # self.Settings = Settings
 
         """can be ID or full filepath"""
-        self.mezz_video = mezz_video
+        # self.mezz_video = mezz_video
         self.encode_profile = kwargs.get('encode_profile', None)
-        self.encode_library = kwargs.get('encode_library', None)
+        # self.encode_library = kwargs.get('encode_library', None)
 
-        self.AbstractionLayer = AbstractionLayer()
-        self.ingest = False
-        self.hotstore = False
-        self.passing = False
+        # self.AbstractionLayer = AbstractionLayer()
+        # self.ingest = False
+        # self.hotstore = False
+        # self.passing = False
 
 
     def activate(self):
         """
         TODO: Make this fail if a false is returned
         """
-        self._CONFIG()
+        # self._CONFIG()
         self._INGEST()
         self.AbstractionLayer.valid = self._QA(mezz_file=True)
         """
@@ -90,14 +99,14 @@ class Pipeline():
         return self.AbstractionLayer.delivered
 
 
-    def _CONFIG(self):
-        """
-        Clean This up 
-        """
-        if len(self.Settings.MEZZ_INGEST_LOCATION) > 0:
-            self.ingest = True
-        if len(self.Settings.MEZZ_HOTSTORE_LOCATION) > 0:
-            self.hotstore = True
+    # def _CONFIG(self):
+    #     """
+    #     Clean This up 
+    #     """
+    #     if len(self.Settings.MEZZ_INGEST_LOCATION) > 0:
+    #         self.ingest = True
+    #     if len(self.Settings.MEZZ_HOTSTORE_LOCATION) > 0:
+    #         self.hotstore = True
 
 
     def _INGEST(self):

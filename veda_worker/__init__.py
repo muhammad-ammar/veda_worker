@@ -1,17 +1,28 @@
 
 import os
 import sys
-import argparse
+# import argparse
+import nose
+import boto
+try:
+    boto.config.add_section('Boto')
+except:
+    pass
+boto.config.set('Boto','http_socket_timeout','10') 
+from boto.s3.connection import S3Connection
 
 """
 Generate a serial transcode stream from 
 a VEDA instance via Celery
 
 """
-# from reporting import ErrorObject, TestReport
+
+from reporting import ErrorObject, Output
 # from config import Settings
 # from pipeline import Pipeline
 from config import WorkerSetup
+from abstractions import Video
+# from pipeline_ingest import Ingest
 
 
 class VedaWorker():
@@ -26,22 +37,28 @@ class VedaWorker():
             'VEDA_WORKING'
             )
         self.veda_id =  kwargs.get('veda_id', None)
-        self.mezz_video = kwargs.get('mezz_video', None)
-
         self.setup = kwargs.get('setup', False)
+        #---#
+        self.encode_profile = kwargs.get('encode_profile', None)
+        self.VideoObject = None
 
-        # kwargs.get('mezz_video', None)
-        # workdir = kwargs.get('workdir', os.path.join(os.getcwd(), 'VEDA_WORKING'))
-        # settings_file = kwargs.get('settings_file', None)
 
-        # self.mezz_video = 
-        # encode_library = kwargs.get('encode_library', None)
-        # # self.encode_profile = kwargs.get('encode_profile', None)
-        # self.Settings = Settings(
-        #     node_config=settings_file, 
-        #     encode_library=encode_library
-        #     )
-        # self.Settings.activate()
+    def test(self):
+        """
+        Run tests
+        """
+        current_dir = os.getcwd()
+
+        test_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'tests'
+            )
+        os.chdir(test_dir)
+        test_bool = nose.run()
+
+        '''Return to previous state'''
+        os.chdir(current_dir)
+        return test_bool
 
 
     def run(self):
@@ -52,31 +69,34 @@ class VedaWorker():
         WS.run()
         self.settings = WS.settings_dict
 
+        if self.encode_profile is None:
+            ErrorObject().print_error(
+                message = 'No Encode Profile Specified'
+                )
+            return None
 
-        # self.Pipeline = None
-        ## Yeah, I know
-        # for key, value in kwargs.items():
-            # if key != 'settings':
-                # setattr(self.Settings, key, value)
+        self.VideoObject = Video(
+            veda_id=self.veda_id
+            )
+        self.VideoObject.activate()
+        if self.VideoObject.valid is False:
+            ErrorObject().print_error(
+                message = 'Invalid Video'
+                )
+            return None
+        # print self.VideoObject.mezz_title
 
+        if not os.path.exists(self.workdir):
+            os.mkdir(self.workdir)
 
-    # def activate(self):
-    #     """
-    #     First some basic kwarg checking, then we're off to the races
-    #     """
-    #     if self.mezz_video == None:
-    #         raise ErrorObject(
-    #             message = 'No File Specified',
-    #             method = self,
-    #             )
-    #         return None
-
-    #     if self.Settings.NODE_VEDA_ATTACH is True and self.encode_profile is None:
-    #         raise ErrorObject(
-    #             message = 'No Encode Profile Specified',
-    #             method = self,
-    #             )
-    #         return None
+        # FI = Ingest(
+        #     Settings = self.Settings, 
+        #     mezz_video=self.mezz_video,
+        #     hotstore=self.hotstore,
+        #     ingest=self.ingest
+        #     )
+        # FI.activate()
+        # self.AbstractionLayer.VideoObject = FI.VideoObject
 
     #     if self.Settings.NODE_VEDA_ATTACH is True:
     #         """
@@ -101,18 +121,6 @@ class VedaWorker():
     #         return None
 
 
-    # def test(self):
-    #     """
-    #     Run end-to-end test of openveda config
-    #     """
-    #     sys.path.append(os.path.join(os.path.dirname(__file__), 'tests'))
-    #     import test_end_to_end
-    #     test_end_to_end.main(
-    #         Settings=self.Settings, 
-    #         mezz_video=self.mezz_video
-    #         )
-
-
     # def complete(self):
     #     """
     #     Determine, reportback completion
@@ -128,10 +136,10 @@ class VedaWorker():
 
 
 
-def main():
-    #--OK
-    # VW1 = VedaWorker(setup=True)
-    # VW1.run()
+# def main():
+#     #--OK
+#     VW1 = VedaWorker(setup=True)
+#     VW1.run()
 
 
 if __name__ == '__main__':

@@ -10,8 +10,8 @@ requests.packages.urllib3.disable_warnings()
 This is a simple set of token generators for attached APIs
 
 """
-from config import WorkerSetup
 from reporting import ErrorObject
+from config import WorkerSetup
 WS = WorkerSetup()
 if os.path.exists(WS.instance_yaml):
     WS.run()
