@@ -51,11 +51,11 @@ class Pipeline():
         TODO: Make this fail if a false is returned
         """
         # self._CONFIG()
-        self._INGEST()
-        self.AbstractionLayer.valid = self._QA(mezz_file=True)
-        """
-        Update API Video Status
-        """
+        # self._INGEST()
+        # self.AbstractionLayer.valid = self._QA(mezz_file=True)
+        # """
+        # Update API Video Status
+        # """
         self.AbstractionLayer.VideoObject.valid = self.AbstractionLayer.valid
         self._UPDATE_API()
         """
@@ -121,14 +121,14 @@ class Pipeline():
     #     self.AbstractionLayer.VideoObject = FI.VideoObject
 
 
-    def _QA(self, mezz_file):
+    # def _QA(self, mezz_file):
 
-        QA = QAVideo(
-            filepath=self.AbstractionLayer.VideoObject.mezz_filepath, 
-            VideoObject=self.AbstractionLayer.VideoObject,
-            mezz_file=mezz_file
-            )
-        return QA.activate()
+    #     QA = QAVideo(
+    #         filepath=self.AbstractionLayer.VideoObject.mezz_filepath, 
+    #         VideoObject=self.AbstractionLayer.VideoObject,
+    #         mezz_file=mezz_file
+    #         )
+    #     return QA.activate()
 
 
     def _UPDATE_API(self, E=None):

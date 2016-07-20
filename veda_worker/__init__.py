@@ -87,7 +87,15 @@ class VedaWorker():
         """
         Pipeline Steps :
           I. Intake
-          II. Validate Mezz
+            Ib. Validate Mezz
+          II. change status in APIs
+          III. Generate Encode Command
+          IV. Execute Encodes
+            IVa. Validate Products
+          (*)V. Deliver Encodes (sftp and others?), retrieve URLs
+          (*)VI. Change Status in APIs, add URLs
+          VII. Clean Directory
+
         """
         self._ENG_INTAKE()
 

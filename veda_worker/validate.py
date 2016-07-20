@@ -54,7 +54,6 @@ class ValidateVideo():
                 )
             return False
 
-
         """
         ffprobe file information
         """
