@@ -17,12 +17,18 @@ but you probably shouldn't ##
 """
 ENFORCE_TARGET_ASPECT = True
 TARGET_ASPECT_RATIO = float(1920) / float(1080)
+
+"""
+the subbed out profile for HLS
+"""
 HLS_SUBSTITUTE = 'mobile_low'
 
 """
 For BOTO Multipart uploader
 """
 MULTI_UPLOAD_BARRIER = 2000000000
+BOTO_TIMEOUT = 60
+
 
 """
 Settings for testing
@@ -31,13 +37,7 @@ TEST_VIDEO_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
     'VEDA_TESTFILES'
     )
-TEST_VIDEO_FILE = 'OVTESTFILE_01.mp4'
-
-"""
-Delivery Globals
-"""
-SFTP_PORT = 19321
-BOTO_TIMEOUT = 60
+TEST_VIDEO_FILE = 'XXXXXXXX2016-V00TEST'
 
 """
 TERM COLORS

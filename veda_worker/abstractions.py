@@ -96,7 +96,6 @@ class Video():
         if len(vid_dict['results']) == 0: return None
 
         for v in vid_dict['results']:
-            print v
             """
             Yeah this is horrible, but it's tied to VEDA's model
 
@@ -120,7 +119,7 @@ class Video():
                 self.veda_id + '.' + self.mezz_extension
                 ))
 
-            if v['video_trans_status'] != 'Corrupt File'
+            if v['video_trans_status'] != 'Corrupt File':
                 self.valid = True
 
         # return self

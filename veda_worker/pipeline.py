@@ -109,16 +109,16 @@ class Pipeline():
     #         self.hotstore = True
 
 
-    def _INGEST(self):
+    # def _INGEST(self):
 
-        FI = Ingest(
-            Settings = self.Settings, 
-            mezz_video=self.mezz_video,
-            hotstore=self.hotstore,
-            ingest=self.ingest
-            )
-        FI.activate()
-        self.AbstractionLayer.VideoObject = FI.VideoObject
+    #     FI = Ingest(
+    #         Settings = self.Settings, 
+    #         mezz_video=self.mezz_video,
+    #         hotstore=self.hotstore,
+    #         ingest=self.ingest
+    #         )
+    #     FI.activate()
+    #     self.AbstractionLayer.VideoObject = FI.VideoObject
 
 
     def _QA(self, mezz_file):
