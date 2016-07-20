@@ -7,9 +7,8 @@ import ast
 
 """
 This is an API connection test
+set to pass if instance_config.yaml is missing
 
-Involves a kwarg sent as val_test, veda_test and 
-was tested as an XOR, but can be modded to 
 """
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))

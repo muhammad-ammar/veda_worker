@@ -3,3 +3,5 @@ instance_config.yaml
 
 *.pyc
 
+VEDA_WORKING/
+
