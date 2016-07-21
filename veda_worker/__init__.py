@@ -1,7 +1,6 @@
 
 import os
 import sys
-# import argparse
 import nose
 import boto
 try:
@@ -16,6 +15,7 @@ Generate a serial transcode stream from
 a VEDA instance via Celery
 
 """
+
 from global_vars import *
 from reporting import ErrorObject, Output
 from config import WorkerSetup
@@ -59,6 +59,10 @@ class VedaWorker():
         '''Return to previous state'''
         os.chdir(current_dir)
         return test_bool
+    
+
+    def celery_run(self):
+        print 'CEL TEST'
 
 
     def run(self):

@@ -3,6 +3,7 @@ import os
 import sys
 import subprocess
 import time
+import unittest
 
 """
 test connection to celery cluster
@@ -10,79 +11,64 @@ test connection to celery cluster
 
 """
 
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from reporting import ErrorObject, TestReport
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
+from reporting import ErrorObject
+from config import WorkerSetup
 
 
+class TestCeleryConnect(unittest.TestCase):
 
-class CeleryConnect():
-
-    def __init__(self, Settings):
-        self.Settings = Settings
-
-        # self.cel_queue = self.Settings.CELERY_QUEUE
-        ####
-
-        self.passed = self.celery_credentials()
-        test_name = 'Celery Connection Test'
-        self.passed = self.celery_setup_test()
-        TestReport(self.passed, test_name)
+    def setUp(self):
+        self.WS = WorkerSetup()
+        if os.path.exists(self.WS.instance_yaml):
+            self.WS.run()
+        self.settings = self.WS.settings_dict
 
 
-    def celery_setup_test(self):
-        if self.Settings.NODE_VEDA_ATTACH is False:
-            return False
+    def test_celery_setup(self):
+        if not os.path.exists(self.WS.instance_yaml):
+            self.assertTrue(True)
+            return None
 
         salient_variables = [
-            'RABBIT_USER', 
-            'RABBIT_PASS', 
-            'RABBIT_BROKER',
-            'CELERY_APP_NAME'
+            'celery_app_name', 
+            'celery_queue', 
+            'rabbitmq_user',
+            'rabbitmq_pass',
+            'rabbitmq_broker'
             ]
 
         for s in salient_variables:
-            if len(eval('self.Settings.' + s)) == 0:
-                raise SetupError(
-                    method=self,
-                    varbls=s
-                    )
-                return False
-        return True
+            self.assertFalse(len(self.settings[s]) == 0)
 
-    def celery_credentials(self):
-        setup = self.celery_setup_test()
-        if setup is False: return False
+
+    def test_celery_credentials(self):
+        if not os.path.exists(self.WS.instance_yaml):
+            self.assertTrue(True)
+            return None
 
         ###### This is yuck, but I am in a hurry ######
-
         os.chdir(os.path.dirname(os.path.dirname(__file__)))
-        worker_call = 'python celeryapp.py worker --loglevel=info --concurrency=1 -Q ' + str(self.Settings.CELERY_QUEUE)
+        worker_call = 'python celeryapp.py worker --loglevel=info --concurrency=1 -Q ' + str(self.settings['celery_queue'])
         a1 = subprocess.Popen(worker_call, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+
         print '** 10 sec of sleep while node connects to cluster **'
         time.sleep(10)
+
         a1.kill() ##Otherwise it's FOREVER
-
+        test_command = 'Connected to amqp://'+self.settings['rabbitmq_user']+':**@'+self.settings['rabbitmq_broker']+':5672//'
         for line in iter(a1.stdout.readline, b''):
-            if 'Connected to amqp://'+self.Settings.RABBIT_USER+':**@'+self.Settings.RABBIT_BROKER+':5672//' in line:
-                return True
+            if test_command in line:
+                self.assertTrue(True)
+                return None
 
-        ######          ^^^GROSS^^^             ######
-
-        return False
+        self.assertFalse(True)
 
 
-"""
-Just for writing and testing
-"""
 def main():
-    from config import Settings
-    S1 = Settings(
-        node_config = os.path.join(os.path.dirname(__file__), 'settings.py')
-        )
-    S1.activate()
-    CCE1 = CeleryConnect(Settings=S1)
-
+    unittest.main()
 
 if __name__ == '__main__':
     sys.exit(main())
-

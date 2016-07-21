@@ -9,15 +9,20 @@ Start Celery Worker (if VEDA-attached node)
 
 """
 from celery import Celery
+from config import WorkerSetup
 
+WS = WorkerSetup()
+if os.path.exists(WS.instance_yaml):
+    WS.run()
+settings = WS.settings_dict
 
-def cel_Start(Settings):
+def cel_Start():
 
     app = Celery(
-        Settings.CELERY_APP_NAME,
-        broker='amqp://' + Settings.RABBIT_USER + ':' + Settings.RABBIT_PASS + '@' + Settings.RABBIT_BROKER + ':5672//',
-        backend='amqp://' + Settings.RABBIT_USER + ':' + Settings.RABBIT_PASS + '@' + Settings.RABBIT_BROKER + ':5672//',
-        include=Settings.CELERY_QUEUE
+        settings['celery_app_name'],
+        broker='amqp://' + settings['rabbitmq_user'] + ':' + settings['rabbitmq_pass'] + '@' + settings['rabbitmq_broker'] + ':5672//',
+        backend='amqp://' + settings['rabbitmq_user'] + ':' + settings['rabbitmq_pass'] + '@' + settings['rabbitmq_broker'] + ':5672//',
+        include=[]
         )
 
     app.conf.update(
@@ -30,10 +35,5 @@ def cel_Start(Settings):
 
 
 if __name__ == '__main__':
-    from config import Settings
-    S1 = Settings(
-        node_config = os.path.join(os.path.dirname(__file__), 'settings.py')
-        )
-    S1.activate()
-    app = cel_Start(Settings=S1)
+    app = cel_Start()
     app.start()
