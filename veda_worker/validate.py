@@ -23,10 +23,16 @@ FUTURE:
 @yro / 2016
 
 """
-
 from reporting import ErrorObject, Output
+from config import WorkerSetup
+WS = WorkerSetup()
+if os.path.exists(WS.instance_yaml):
+    WS.run()
+settings = WS.settings_dict
+
 
 class ValidateVideo():
+
 
     def __init__(self, filepath, VideoObject=None, **kwargs):
         self.filepath = filepath
