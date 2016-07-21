@@ -85,7 +85,12 @@ class WorkerSetup():
         for j, k in config_dict.iteritems():
             sys.stdout.write('\r')
             new_value = raw_input('%s :' % (j))
-            output_dict[j] = new_value
+            # clean tailing slashes here
+            if new_value is not None and len(new_value) > 0 and new_value[-1] == '/':
+            # if 
+                output_dict[j] = new_value[:-1]
+            else:
+                output_dict[j] = new_value
             sys.stdout.flush()
 
         with open(self.instance_yaml, 'w') as outfile:

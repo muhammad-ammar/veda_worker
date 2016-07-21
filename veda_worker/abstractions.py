@@ -63,6 +63,8 @@ class Video():
         self.mezz_resolution = None
         self.mezz_duration = None
         self.mezz_filepath = None
+        # ** optional
+        self.course_url = kwargs.get('course_url', [])
 
 
     def activate(self):
@@ -87,7 +89,7 @@ class Video():
             'content-type': 'application/json'
             }
         x = requests.get(
-            settings['veda_api_url'] + 'videos', 
+            '/'.join((settings['veda_api_url'], 'videos', '')),
             params=data, 
             headers=headers
             )
@@ -121,6 +123,7 @@ class Video():
 
             if v['video_trans_status'] != 'Corrupt File':
                 self.valid = True
+
 
         # return self
 

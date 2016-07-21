@@ -26,7 +26,7 @@ def veda_tokengen():
     '''Generate Token'''
     payload = { 'grant_type' : 'client_credentials' }
     r = requests.post(
-        settings['veda_token_url'],
+        settings['veda_token_url'] + '/',
         params=payload, 
         auth=(
             settings['veda_client_id'], 
@@ -47,7 +47,10 @@ def veda_tokengen():
     This is based around the VEDA "No Auth Server" hack
     """
     payload = { 'data' : veda_token }
-    t = requests.post(settings['veda_auth_url'], data=payload)
+    t = requests.post(
+        settings['veda_auth_url'] + '/', 
+        data=payload
+        )
 
     if t.status_code == 200 and t.text == 'True':
         return veda_token
@@ -71,7 +74,7 @@ def val_tokengen():
         'password' : settings['val_password']
         }
 
-    r = requests.post(settings['val_token_url'], data=payload, timeout=20)
+    r = requests.post(settings['val_token_url'] + '/', data=payload, timeout=20)
 
     if r.status_code != 200:
         ErrorObject().print_error(
