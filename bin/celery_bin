@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+from __future__ import absolute_import
+import os
+import sys
+import argparse
+
+
+"""
+OpenVeda : A purpose-built tool to transcode video 
+for instances of the edX platform.
+Copyright (C) 2016 @yro | Gregory Martin
+
+Command Line Interface
+"""
+sys.path.append(
+    os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        'veda_worker'
+        )
+    )
+from veda_worker import VedaWorker
+from celeryapp import cel_Start
+app = cel_start()
+
+@app.task
+def celery_worker():
+    print 'FART'
+

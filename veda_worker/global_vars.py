@@ -6,8 +6,8 @@ import sys
 Globals
 
 """
-
-## TODO: Logging
+NODE_TRANSCODE_STATUS = 'Active Transcode'
+VAL_TRANSCODE_STATUS = 'transcode_active'
 
 """
 Initially set to 16:9, can be changed

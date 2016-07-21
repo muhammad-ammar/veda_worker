@@ -17,11 +17,13 @@ a VEDA instance via Celery
 
 """
 
+from global_vars import *
 from reporting import ErrorObject, Output
 from config import WorkerSetup
 from abstractions import Video
 from validate import ValidateVideo
-# from pipeline import Pipeline
+from api_communicate import UpdateAPIStatus
+
 
 
 class VedaWorker():
@@ -58,6 +60,10 @@ class VedaWorker():
         '''Return to previous state'''
         os.chdir(current_dir)
         return test_bool
+    
+
+    def celery_run(self):
+        print 'CEL TEST'
 
 
     def run(self):
@@ -104,6 +110,8 @@ class VedaWorker():
                 message = 'Invalid Video / Local'
                 )
             return None
+
+        self._UPDATE_API()
 
 
     def _ENG_INTAKE(self):
@@ -157,6 +165,22 @@ class VedaWorker():
             filepath=os.path.join(self.workdir, source_file)
             ).valid
 
+
+    def _UPDATE_API(self):
+
+        # if self.Settings.VAL_ATTACH is True:
+        # V1 = VALData(
+            
+            # VideoObject=self.VideoObject, 
+            # ).run()
+
+        V2 = UpdateAPIStatus(
+            val_video_status=VAL_TRANSCODE_STATUS,
+            veda_video_status=NODE_TRANSCODE_STATUS,
+            VideoObject=self.VideoObject, 
+            ).run()
+
+
     #     if self.Settings.NODE_VEDA_ATTACH is True:
     #         """
     #         For a node attached instance
@@ -195,7 +219,8 @@ class VedaWorker():
 
 
 
-# def main():
+def main():
+    pass
 #     #--OK
 #     VW1 = VedaWorker(setup=True)
 #     VW1.run()
