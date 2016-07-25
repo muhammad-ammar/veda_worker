@@ -16,83 +16,104 @@ input, via two classes, encode and video, which can be generated either via the 
 or via celery connection to VEDA (VEDA will send video_id and encode_profile via Celery queue)
 
 """
+from global_vars import *
+from reporting import ErrorObject, Output
+WS = WorkerSetup()
+if os.path.exists(WS.instance_yaml):
+    WS.run()
+settings = WS.settings_dict
 
-from reporting import ErrorObject, TestReport
+
+
 
 class CommandGenerate():
 
-    def __init__(self, Settings, VideoObject, EncodeObject):
-        self.Settings = Settings
+    def __init__(self, VideoObject, EncodeObject):
+        # self.Settings = Settings
         self.VideoObject = VideoObject
         self.EncodeObject = EncodeObject
 
-        self.ffcommand = None
+        self.ffcommand = []
+        self.workdir = os.path.join(
+            os.path.dirname(
+                os.path.dirname(os.path.abspath(__file__))
+                ),
+            'VEDA_WORKING'
+            )
 
 
-    def activate(self):
+    def generate(self):
         """
         Generate command for ffmpeg lib
         """
         if self.VideoObject == None:
-            ErrorObject(
-                method = self,
-                message = 'Command Gen Fail\nNo Video Object'
+            ErrorObject().print_error(
+                message = 'Command Gen Fail: No Video Object'
                 )
 
-            return False
+            return None
         if self.EncodeObject == None:
-            ErrorObject(
-                method = self,
-                message = 'Command Gen Fail\nNo Encode Object'
+            ErrorObject().print_error(
+                message = 'Command Gen Fail: No Encode Object'
                 )
 
-            return False
+            return None
 
-        """These build the command, and, unfortunately, must be in order"""
-        self.call_ffmpeg()
-        self.codec_commands()
-        if self.Settings.ENFORCE_TARGET_ASPECT is True:
-            self.scalar_commands()
 
-        self.determine_bitdepth()
+        """
+        These build the command, and, unfortunately, must be in order
+        """
+        self._call()
+        self._codec()
+
+        if ENFORCE_TARGET_ASPECT is True:
+            self._scalar()
+
+        self._bitdepth()
         self.determine_passes()
         self.destination_file()
 
 
-    def call_ffmpeg(self):
+    def _call(self):
         """
         Begin Command Proper
         """
-        self.ffcommand = self.Settings.FFMPEG_COMPILED + " -hide_banner -y -i " + os.path.join(
-            self.Settings.VEDA_WORK_DIR, 
-            self.VideoObject.mezz_filepath.split('/')[-1]
-            )
+        self.ffcommand.append(settings['ffmpeg_compiled'])
+        self.ffcommand.append("-hide_banner")
+        self.ffcommand.append("-y")
+        self.ffcommand.append("-i")
+        self.ffcommand.append(os.path.join(
+            self.workdir, 
+            '.'.join((
+                self.VideoObject.veda_id, 
+                self.VideoObject.mezz_extension
+                ))
+            ))
 
         if self.EncodeObject.filetype != 'mp3':
-            self.ffcommand += ' -c:v '
+            self.ffcommand.append("-c:v")
         else:
-            self.ffcommand += ' -c:a '
+            self.ffcommand.append("-c:a")
 
 
-    def codec_commands(self):
+    def _codec(self):
         """
         This, as an addendum to the relatively simple deliverables to edX, is only intended to 
         work with a few filetypes (see config)
         """
         if self.ffcommand == None: return None
+
         if self.EncodeObject.filetype == "mp4":
-            self.ffcommand += "libx264 "
+            self.ffcommand.append("libx264")
         elif self.EncodeObject.filetype == "webm":
-            self.ffcommand += "libvpx "
+            self.ffcommand.append("libvpx")
         elif self.EncodeObject.filetype == "mp3":
-            self.ffcommand += "libmp3lame "
-        # return True
+            self.ffcommand.append("libmp3lame")
 
 
-    def scalar_commands(self):
-        # print self.EncodeObject.filetype
+    def _scalar(self):
         if self.ffcommand == None: return None
-        if self.Settings.ENFORCE_TARGET_ASPECT is False: return None
+        if ENFORCE_TARGET_ASPECT is False: return None
         if self.EncodeObject.filetype == 'mp3': return None
 
         """
@@ -100,7 +121,7 @@ class CommandGenerate():
         letter/pillarboxing Command example: -vf pad=720:480:0:38 
         (target reso, x, y)
         """
-        horiz_resolution = int(float(self.EncodeObject.resolution) * self.Settings.TARGET_ASPECT_RATIO)
+        horiz_resolution = int(float(self.EncodeObject.resolution) * TARGET_ASPECT_RATIO)
 
         """BITRATE as int"""
         if self.VideoObject.mezz_bitrate != 'Unparsed' and len(self.VideoObject.mezz_bitrate) > 0:
@@ -122,7 +143,7 @@ class CommandGenerate():
 
         """Append commands"""
         ##let's make this a little cleaner than it was
-        if mezz_aspect_ratio == None or float(mezz_aspect_ratio) == float(self.Settings.TARGET_ASPECT_RATIO):
+        if mezz_aspect_ratio == None or float(mezz_aspect_ratio) == float(TARGET_ASPECT_RATIO):
             aspect_fix = False
         elif mezz_vert_resolution == 1080 and mezz_horiz_resolution == 1440:
             aspect_fix = False
@@ -138,30 +159,36 @@ class CommandGenerate():
             return None
 
         if aspect_fix is False and resolution_fix is True:
-            self.ffcommand += "-vf scale=" + str(horiz_resolution) + ":" + str(self.EncodeObject.resolution) + " "
+            self.ffcommand.append("-vf")
+            self.ffcommand.append("scale=" + str(horiz_resolution) + ":" + str(self.EncodeObject.resolution))
 
-        elif aspect_fix is True: # and resolution_fix is False: (not needed)
+        elif aspect_fix is True:
             if mezz_aspect_ratio > self.Settings.TARGET_ASPECT_RATIO:
                 ## LETTERBOX ##
                 scalar = (int(self.EncodeObject.resolution) - (horiz_resolution / mezz_aspect_ratio)) / 2
                 
-                self.ffcommand += "-vf scale=" + str(horiz_resolution) 
-                self.ffcommand += ":" + str(int(self.EncodeObject.resolution) - (int(scalar) * 2))
-                self.ffcommand += ",pad=" + str(horiz_resolution) + ":" + str(self.EncodeObject.resolution) 
-                self.ffcommand += ":0:" + str(int(scalar)) + " "
+                self.ffcommand.append("-vf")
+                scalar_command = "scale=" + str(horiz_resolution)
+                scalar_command += ":" + str(int(self.EncodeObject.resolution) - (int(scalar) * 2))
+                scalar_command += ",pad=" + str(horiz_resolution) + ":" + str(self.EncodeObject.resolution) 
+                scalar_command += ":0:" + str(int(scalar))
+                self.ffcommand.append(scalar_command)
+
 
             if mezz_aspect_ratio < self.Settings.TARGET_ASPECT_RATIO:
                 ## PILLARBOX ##
                 scalar = (horiz_resolution - (mezz_aspect_ratio * int(self.EncodeObject.resolution))) / 2
-                self.ffcommand += "-vf scale=" + str(horiz_resolution - (int(scalar) * 2)) 
-                self.ffcommand += ":" + str(self.EncodeObject.resolution)
-                self.ffcommand += ",pad=" + str(horiz_resolution) + ":" + str(self.EncodeObject.resolution) 
-                self.ffcommand += ":" + str(int(scalar)) + ":0 "
+
+                self.ffcommand.append("-vf")
+                scalar_command = "scale=" + str(horiz_resolution - (int(scalar) * 2)) 
+                scalar_command += ":" + str(self.EncodeObject.resolution)
+                scalar_command += ",pad=" + str(horiz_resolution) + ":" + str(self.EncodeObject.resolution) 
+                scalar_command += ":" + str(int(scalar)) + ":0"
+                self.ffcommand.append(scalar_command)
 
 
-    def determine_bitdepth(self):
+    def _bitdepth(self):
         """
-
         TODO: add tables translating CRF to bitrate,
         some experimenting is needed - a lossless solution
         to low bitdepth videos can be in the offing, but for now,

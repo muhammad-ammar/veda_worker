@@ -56,12 +56,12 @@ class Pipeline():
         # """
         # Update API Video Status
         # """
-        self.AbstractionLayer.VideoObject.valid = self.AbstractionLayer.valid
-        self._UPDATE_API()
+        # self.AbstractionLayer.VideoObject.valid = self.AbstractionLayer.valid
+        # self._UPDATE_API()
         """
         Generate and Fire Encode
         """
-        self._GENERATE_ENCODES()
+        # self._GENERATE_ENCODES()
         self._EXECUTE_ENCODES()
         """
         QA and Deliver Files
@@ -131,79 +131,79 @@ class Pipeline():
     #     return QA.activate()
 
 
-    def _UPDATE_API(self, E=None):
+    # def _UPDATE_API(self, E=None):
 
-        if self.Settings.VAL_ATTACH is True:
-            V1 = VALData(
-                Settings=self.Settings,
-                VideoObject=self.AbstractionLayer.VideoObject, 
-                EncodeObject=E
-                ).activate()
+    #     if self.Settings.VAL_ATTACH is True:
+    #         V1 = VALData(
+    #             Settings=self.Settings,
+    #             VideoObject=self.AbstractionLayer.VideoObject, 
+    #             EncodeObject=E
+    #             ).activate()
 
-        if self.Settings.NODE_VEDA_ATTACH is True:
-            V2 = VEDAData(
-                video_status=True,
-                Settings=self.Settings,
-                VideoObject=self.AbstractionLayer.VideoObject, 
-                EncodeObject=E
-                ).activate()
+    #     if self.Settings.NODE_VEDA_ATTACH is True:
+    #         V2 = VEDAData(
+    #             video_status=True,
+    #             Settings=self.Settings,
+    #             VideoObject=self.AbstractionLayer.VideoObject, 
+    #             EncodeObject=E
+    #             ).activate()
 
 
-    def _GENERATE_ENCODES(self):
-        """
-        Generate the (shell) command / Encode Object
-        and tack it into the AbstractionLayer Object
-        """
-        if self.Settings.NODE_VEDA_ATTACH is True \
-        and self.encode_profile is None:
-            ErrorObject(
-                method = self,
-                message = 'Encode Gen Fail\nNo Encode Profile'
-                )
-            return False
+    # def _GENERATE_ENCODES(self):
+    #     """
+    #     Generate the (shell) command / Encode Object
+    #     and tack it into the AbstractionLayer Object
+    #     """
+    #     if self.Settings.NODE_VEDA_ATTACH is True \
+    #     and self.encode_profile is None:
+    #         ErrorObject(
+    #             method = self,
+    #             message = 'Encode Gen Fail\nNo Encode Profile'
+    #             )
+    #         return False
 
-        if self.Settings.NODE_VEDA_ATTACH is True:
-            """
-            If this is a VEDA-Attached Node, it'll only receive one enc command
-            """
-            E1 = Encode(
-                Settings = self.Settings,
-                VideoObject = self.AbstractionLayer.VideoObject,
-                profile_name = self.encode_profile
-                )
-            E1.activate()
-            self.AbstractionLayer.Encodes.append(E1)
-        else:
-            """
-            Get all the NODE_ENCODE_PROFILES from node_config
-            """
-            for key, entry in self.Settings.NODE_ENCODE_PROFILES.iteritems():
-                E1 = Encode(
-                    Settings = self.Settings,
-                    VideoObject = self.AbstractionLayer.VideoObject,
-                    profile_name = key
-                    )
-                E1.activate()
-                self.AbstractionLayer.Encodes.append(E1)
+    #     if self.Settings.NODE_VEDA_ATTACH is True:
+    #         """
+    #         If this is a VEDA-Attached Node, it'll only receive one enc command
+    #         """
+    #         E1 = Encode(
+    #             Settings = self.Settings,
+    #             VideoObject = self.AbstractionLayer.VideoObject,
+    #             profile_name = self.encode_profile
+    #             )
+    #         E1.activate()
+    #         self.AbstractionLayer.Encodes.append(E1)
+    #     else:
+    #         """
+    #         Get all the NODE_ENCODE_PROFILES from node_config
+    #         """
+    #         for key, entry in self.Settings.NODE_ENCODE_PROFILES.iteritems():
+    #             E1 = Encode(
+    #                 Settings = self.Settings,
+    #                 VideoObject = self.AbstractionLayer.VideoObject,
+    #                 profile_name = key
+    #                 )
+    #             E1.activate()
+    #             self.AbstractionLayer.Encodes.append(E1)
 
-        for E in self.AbstractionLayer.Encodes:
-            CG = CommandGenerate(
-                Settings = self.Settings,
-                VideoObject = self.AbstractionLayer.VideoObject,
-                EncodeObject = E
-                )
-            CG.activate()
-            E.ffcommand = CG.ffcommand
+    #     for E in self.AbstractionLayer.Encodes:
+    #         CG = CommandGenerate(
+    #             Settings = self.Settings,
+    #             VideoObject = self.AbstractionLayer.VideoObject,
+    #             EncodeObject = E
+    #             )
+    #         CG.activate()
+    #         E.ffcommand = CG.ffcommand
 
-        for E in self.AbstractionLayer.Encodes:
-            if E.ffcommand == None:
-                ErrorObject(
-                    method = self,
-                    message = 'Encode Gen Fail\nCommand Gen Fail'
-                    )
-                return False
+    #     for E in self.AbstractionLayer.Encodes:
+    #         if E.ffcommand == None:
+    #             ErrorObject(
+    #                 method = self,
+    #                 message = 'Encode Gen Fail\nCommand Gen Fail'
+    #                 )
+    #             return False
 
-        return True
+    #     return True
 
 
     def _EXECUTE_ENCODES(self):
