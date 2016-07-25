@@ -42,6 +42,7 @@ class VedaWorker():
         #---#
         self.encode_profile = kwargs.get('encode_profile', None)
         self.VideoObject = None
+        self.ffcommand = None
 
 
     def test(self):
@@ -187,25 +188,11 @@ class VedaWorker():
         E.pull_data()
         if E.filetype is None: return None
 
-        CG = CommandGenerate(
+        self.ffcommand = CommandGenerate(
             VideoObject = self.VideoObject,
             EncodeObject = E
-            )
-
-
-        #     CG.activate()
-        #     E.ffcommand = CG.ffcommand
-
-        # for E in self.AbstractionLayer.Encodes:
-        #     if E.ffcommand == None:
-        #         ErrorObject(
-        #             method = self,
-        #             message = 'Encode Gen Fail\nCommand Gen Fail'
-        #             )
-        #         return False
-
-        # return True
-
+            ).generate()
+        print self.ffcommand
 
     # def complete(self):
     #     """

@@ -4,7 +4,7 @@ import sys
 import unittest
 
 """
-test Encode Abstraction and Command Gen 
+test Encode Abstraction and Command Gen
 
 """
 sys.path.append(
@@ -12,9 +12,11 @@ sys.path.append(
     )
 from reporting import ErrorObject
 from config import WorkerSetup
+from abstractions import Video, Encode
+from generate_encode import CommandGenerate
 
 
-class Test_Encode_Command(unittest.TestCase)
+class Test_Encode_Command(unittest.TestCase):
 
     def setUp(self):
         self.WS = WorkerSetup()
@@ -22,7 +24,22 @@ class Test_Encode_Command(unittest.TestCase)
             self.WS.run()
         self.settings = self.WS.settings_dict
         self.encode_profile = 'desktop_mp4'
+        """
+        Gen abstractions
+        """
+        # Video
+        self.VideoObject = Video(
+            veda_id='XXXXXXXX2016-V00TEST',
+            )
+        self.VideoObject.activate()
 
+        # Encode
+        self.E = Encode(
+            VideoObject=self.VideoObject,
+            profile_name=self.encode_profile
+            )
+        self.E.pull_data()
+        self.ffcommand = None
 
 
     def test_generate_command(self):
@@ -33,44 +50,36 @@ class Test_Encode_Command(unittest.TestCase)
         """
         Generate the (shell) command / Encode Object
         """
-        VW = VedaWorker(
-            veda_id='XXXXXXXX2016-V00TEST', 
-            encode_profile='desktop_mp4'
-            )
-
-        VW.VideoObject = Video(
-            veda_id=self.veda_id
-            )
-        self.VideoObject.activate()
+        self.assertTrue(self.VideoObject.valid is True)
         self.assertTrue(self.VideoObject.valid is True)
 
         """
-        Pipeline Steps :
-          I. Intake
-            Ib. Validate Mezz
-          II. change status in APIs
-          III. Generate Encode Command
-          IV. Execute Encodes
-            IVa. Validate Products
-          (*)V. Deliver Encodes (sftp and others?), retrieve URLs
-          (*)VI. Change Status in APIs, add URLs
-          VII. Clean Directory
+        Generate the Encode Object
+        """
+        self.E.pull_data()
+        self.assertFalse(self.E.filetype is None)
 
         """
-        self._ENG_INTAKE()
-        self.assertTrue(self.VideoObject.valid is True)
+        Generate the (shell) command
+        """
+        self.ffcommand = CommandGenerate(
+            VideoObject = self.VideoObject,
+            EncodeObject = self.E
+            ).generate()
 
-        self._GENERATE_ENCODE()
+        self.assertFalse(self.ffcommand is None)
+
+        """
+        TODO: More sophisticated encode tests
+        """
+        # TODO: pillarbox, letterbox commands
+        # TODO: scalar commands
+        # TODO: destination file, etc.
 
 
 
-        # print VW.test()
-        # VW.run()
-        # V = VideoObject()
+def main():
+    unittest.main()
 
-        # E = Encode(
-            # VideoObject=self.VideoObject,
-            # profile_name=self.encode_profile
-            # )
-        # E.pull_data()
-        # print E.filetype
+if __name__ == '__main__':
+    sys.exit(main())

@@ -18,6 +18,7 @@ or via celery connection to VEDA (VEDA will send video_id and encode_profile via
 """
 from global_vars import *
 from reporting import ErrorObject, Output
+from config import WorkerSetup
 WS = WorkerSetup()
 if os.path.exists(WS.instance_yaml):
     WS.run()
@@ -29,7 +30,6 @@ settings = WS.settings_dict
 class CommandGenerate():
 
     def __init__(self, VideoObject, EncodeObject):
-        # self.Settings = Settings
         self.VideoObject = VideoObject
         self.EncodeObject = EncodeObject
 
@@ -58,8 +58,6 @@ class CommandGenerate():
                 )
 
             return None
-
-
         """
         These build the command, and, unfortunately, must be in order
         """
@@ -70,8 +68,9 @@ class CommandGenerate():
             self._scalar()
 
         self._bitdepth()
-        self.determine_passes()
-        self.destination_file()
+        self._passes()
+        self._destination()
+        return " ".join(self.ffcommand)
 
 
     def _call(self):
@@ -198,60 +197,65 @@ class CommandGenerate():
         return None
 
 
-    def determine_passes(self):
+    def _passes(self):
         """
         Passes / 2 for VBR
         1 for CRF
         1 for WEBM
         """
         if self.EncodeObject.filetype == "webm":
-            self.ffcommand += "-b:v "
+            self.ffcommand.append("-b:v")
             if self.EncodeObject.rate_factor > self.VideoObject.mezz_bitrate:
-                self.ffcommand += str(self.VideoObject.mezz_bitrate) + "k -minrate 10k -maxrate "
-                self.ffcommand += str(int(float(self.VideoObject.mezz_bitrate) * 1.25))
-                self.ffcommand += "k -bufsize " + str(int(self.VideoObject.mezz_bitrate) - 24) + "k"
+                self.ffcommand.append(str(self.VideoObject.mezz_bitrate) + "k")
+                self.ffcommand.append("-minrate")
+                self.ffcommand.append("10k")
+                self.ffcommand.append("-maxrate")
+                self.ffcommand.append(str(int(float(self.VideoObject.mezz_bitrate) * 1.25)) + "k")
+                self.ffcommand.append("-bufsize")
+                self.ffcommand.append(str(int(self.VideoObject.mezz_bitrate) - 24) + "k")
             else:
-                self.ffcommand += str(self.EncodeObject.rate_factor) + "k -minrate 10k -maxrate " 
-                self.ffcommand += str(int(float(self.EncodeObject.rate_factor) * 1.25))
-                self.ffcommand += "k -bufsize " + str(int(self.EncodeObject.rate_factor) - 24) + "k"
+                self.ffcommand.append(str(self.EncodeObject.rate_factor) + "k")
+                self.ffcommand.append("-minrate")
+                self.ffcommand.append("10k")
+                self.ffcommand.append("-maxrate")
+                self.ffcommand.append(str(int(float(self.EncodeObject.rate_factor) * 1.25)) + "k")
+                self.ffcommand.append("-bufsize")
+                self.ffcommand.append(str(int(self.EncodeObject.rate_factor) - 24) + "k")
 
         elif self.EncodeObject.filetype == "mp4":
             crf = str(self.EncodeObject.rate_factor)
-            self.ffcommand += "-crf " + crf
+            self.ffcommand.append("-crf")
+            self.ffcommand.append(crf)
 
         elif self.EncodeObject.filetype == "mp3":
-            self.ffcommand += "-b:a " + str(self.EncodeObject.rate_factor) + 'k ' 
+            self.ffcommand.append("-b:a")
+            self.ffcommand.append(str(self.EncodeObject.rate_factor) + "k")
 
         """
-        for a possiblestate of two-pass encodes : 
+        for a possible state of two-pass encodes : 
         need: two-pass global bool
             ffmpeg -y -i -pass 1 -c:a libfdk_aac -b:a 128k -passlogfile ${LOGFILE} \
             -f mp4 /dev/null && ${FFCOMMAND} -pass 2 -c:a libfdk_aac -b:a 128k ${DESTINATION}
         """
 
 
-    def destination_file(self):
+    def _destination(self):
         
         if self.EncodeObject.filetype == "mp4":
-            self.ffcommand +=  " -movflags faststart "
+            self.ffcommand.append("-movflags")
+            self.ffcommand.append("faststart")
 
         elif self.EncodeObject.filetype == "webm":
             """This is WEBM = 1 Pass"""
-            self.ffcommand += " -c:a libvorbis "
+            self.ffcommand.append("-c:a")
+            self.ffcommand.append("libvorbis")
 
-        if self.VideoObject.video_id != None:
-            self.ffcommand += os.path.join(
-                self.Settings.VEDA_WORK_DIR, 
-                self.VideoObject.video_id
+        self.ffcommand.append(
+            os.path.join(
+                self.workdir,
+                self.VideoObject.veda_id + "_" + self.EncodeObject.encode_suffix + "." + self.EncodeObject.filetype
                 )
-
-        else:
-            self.ffcommand += os.path.join(
-                self.Settings.VEDA_WORK_DIR, 
-                self.VideoObject.mezz_filepath.split('/')[-1].split('.')[0]
-                )
-
-        self.ffcommand += "_" + self.EncodeObject.encode_suffix + "." + self.EncodeObject.filetype
+            )
 
 
 
@@ -261,4 +265,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-
