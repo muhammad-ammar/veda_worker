@@ -19,9 +19,10 @@ a VEDA instance via Celery
 from global_vars import *
 from reporting import ErrorObject, Output
 from config import WorkerSetup
-from abstractions import Video
+from abstractions import Video, Encode
 from validate import ValidateVideo
 from api_communicate import UpdateAPIStatus
+from generate_encode import CommandGenerate
 
 
 
@@ -41,6 +42,7 @@ class VedaWorker():
         #---#
         self.encode_profile = kwargs.get('encode_profile', None)
         self.VideoObject = None
+        self.ffcommand = None
 
 
     def test(self):
@@ -111,6 +113,7 @@ class VedaWorker():
             return None
 
         self._UPDATE_API()
+        self._GENERATE_ENCODE()
 
 
     def _ENG_INTAKE(self):
@@ -167,12 +170,6 @@ class VedaWorker():
 
     def _UPDATE_API(self):
 
-        # if self.Settings.VAL_ATTACH is True:
-        # V1 = VALData(
-            
-            # VideoObject=self.VideoObject, 
-            # ).run()
-
         V2 = UpdateAPIStatus(
             val_video_status=VAL_TRANSCODE_STATUS,
             veda_video_status=NODE_TRANSCODE_STATUS,
@@ -180,28 +177,22 @@ class VedaWorker():
             ).run()
 
 
-    #     if self.Settings.NODE_VEDA_ATTACH is True:
-    #         """
-    #         For a node attached instance
-    #         """
-    #         self.Pipeline = Pipeline(
-    #             Settings=self.Settings,
-    #             mezz_video=self.mezz_video,
-    #             encode_profile=self.encode_profile
-    #             )
-    #         self.Pipeline.activate()
-    #         return None
-    #     else:
-    #         """
-    #         Single stream
-    #         """
-    #         self.Pipeline = Pipeline(
-    #             Settings=self.Settings,
-    #             mezz_video=self.mezz_video
-    #             )
-    #         self.Pipeline.activate()
-    #         return None
+    def _GENERATE_ENCODE(self):
+        """
+        Generate the (shell) command / Encode Object
+        """
+        E = Encode(
+            VideoObject=self.VideoObject,
+            profile_name=self.encode_profile
+            )
+        E.pull_data()
+        if E.filetype is None: return None
 
+        self.ffcommand = CommandGenerate(
+            VideoObject = self.VideoObject,
+            EncodeObject = E
+            ).generate()
+        print self.ffcommand
 
     # def complete(self):
     #     """

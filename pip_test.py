@@ -13,7 +13,7 @@ def pip_test():
         veda_id='XXXXXXXX2016-V00TEST', 
         encode_profile='desktop_mp4'
         )
-    print VW.test()
+    # print VW.test()
     VW.run()
 
     # OV.complete()

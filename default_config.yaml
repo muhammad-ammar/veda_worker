@@ -3,6 +3,11 @@
 #-----------------------------------------------------
 # This is a configable YAML file for instance defaults
 #-----------------------------------------------------
+#----
+# Encode Commands
+#----
+ffmpeg_compiled: ''
+ffmpeg_compiled: ''
 
 #-----
 # AWS
