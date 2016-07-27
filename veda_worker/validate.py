@@ -33,7 +33,6 @@ settings = WS.settings_dict
 
 class ValidateVideo():
 
-
     def __init__(self, filepath, VideoObject=None, **kwargs):
         self.filepath = filepath
         self.VideoObject = VideoObject

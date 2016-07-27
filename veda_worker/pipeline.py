@@ -3,6 +3,9 @@ import os
 import sys
 
 """
+TO BE DELETED
+
+
 Actual transcode pipeline
 
 """
@@ -62,20 +65,20 @@ class Pipeline():
         Generate and Fire Encode
         """
         # self._GENERATE_ENCODES()
-        self._EXECUTE_ENCODES()
+        # self._EXECUTE_ENCODES()
         """
         QA and Deliver Files
         """
-        for E in self.AbstractionLayer.Encodes:
-            Q1 = QAVideo(
-                filepath=E.output_file, 
-                VideoObject=self.AbstractionLayer.VideoObject,
-                mezz_file=False
-                )
-            """
-            This should continue, even if one file is missing
-            """
-            E.complete = Q1.activate()
+        # for E in self.AbstractionLayer.Encodes:
+        #     Q1 = QAVideo(
+        #         filepath=E.output_file, 
+        #         VideoObject=self.AbstractionLayer.VideoObject,
+        #         mezz_file=False
+        #         )
+        #     """
+        #     This should continue, even if one file is missing
+        #     """
+        #     E.complete = Q1.activate()
 
         for E in self.AbstractionLayer.Encodes:
             E.delivered = self._DELIVER_FILE(E)
@@ -206,25 +209,25 @@ class Pipeline():
     #     return True
 
 
-    def _EXECUTE_ENCODES(self):
-        """
-        Run the commands, which tests for a file and returns
-        a bool and the filename
-        """
-        for E in self.AbstractionLayer.Encodes:
-            FF = CommandExecute(
-                ffcommand = E.ffcommand, 
-                )
-            E.complete = FF.activate()
-            E.output_file = FF.output
-            """just polite"""
-            print('')
-            """"""
-            if E.complete is False:
-                return False
+    # def _EXECUTE_ENCODES(self):
+        # """
+        # Run the commands, which tests for a file and returns
+        # a bool and the filename
+        # """
+        # for E in self.AbstractionLayer.Encodes:
+        #     FF = CommandExecute(
+        #         ffcommand = E.ffcommand, 
+        #         )
+        #     E.complete = FF.activate()
+        #     E.output_file = FF.output
+        #     """just polite"""
+        #     print('')
+        #     """"""
+        #     if E.complete is False:
+        #         return False
         
-        self.AbstractionLayer.complete = True
-        return True
+        # self.AbstractionLayer.complete = True
+        # return True
 
 
     def _DELIVER_FILE(self, E):

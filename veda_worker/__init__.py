@@ -2,6 +2,7 @@
 import os
 import sys
 import nose
+import subprocess
 import boto
 try:
     boto.config.add_section('Boto')
@@ -42,7 +43,15 @@ class VedaWorker():
         #---#
         self.encode_profile = kwargs.get('encode_profile', None)
         self.VideoObject = None
+        #---#
         self.ffcommand = None
+        self.source_file = None
+        self.output_file = None
+        #---#
+        # Pipeline Steps
+        self.encoded = False
+        self.delivered = False
+        self.complete = False
 
 
     def test(self):
@@ -61,10 +70,6 @@ class VedaWorker():
         '''Return to previous state'''
         os.chdir(current_dir)
         return test_bool
-    
-
-    def celery_run(self):
-        print 'CEL TEST'
 
 
     def run(self):
@@ -114,6 +119,10 @@ class VedaWorker():
 
         self._UPDATE_API()
         self._GENERATE_ENCODE()
+        self._EXECUTE_ENCODE()
+        self._VALIDATE_ENCODE()
+        if self.encoded is True:
+            print 'WORK HERE -- Deliver'
 
 
     def _ENG_INTAKE(self):
@@ -142,11 +151,11 @@ class VedaWorker():
                 )
             return None
 
-        source_file = '.'.join((
+        self.source_file = '.'.join((
             self.VideoObject.veda_id, 
             self.VideoObject.mezz_extension
             ))
-        source_key = bucket.get_key(source_file)
+        source_key = bucket.get_key(self.source_file)
 
         if source_key == None:
             ErrorObject().print_error(
@@ -154,17 +163,17 @@ class VedaWorker():
                 )
             return None
         source_key.get_contents_to_filename(
-            os.path.join(self.workdir, source_file)
+            os.path.join(self.workdir, self.source_file)
             )
 
-        if not os.path.exists(os.path.join(self.workdir, source_file)):
+        if not os.path.exists(os.path.join(self.workdir, self.source_file)):
             ErrorObject().print_error(
                 message = 'Engine Intake Download',
                 )
             return None
 
         self.VideoObject.valid = ValidateVideo(
-            filepath=os.path.join(self.workdir, source_file)
+            filepath=os.path.join(self.workdir, self.source_file)
             ).valid
 
 
@@ -192,7 +201,74 @@ class VedaWorker():
             VideoObject = self.VideoObject,
             EncodeObject = E
             ).generate()
-        print self.ffcommand
+
+
+    def _EXECUTE_ENCODE(self):
+        """
+        if this is just a filepath, this should just work
+        --no need to move the source--
+        """
+        if not os.path.exists(
+            os.path.join(self.workdir, self.source_file)
+            ):
+            ErrorObject().print_error(
+                message = 'Source File (local) NOT FOUND',
+                )
+            return None
+
+        process = subprocess.Popen(
+            self.ffcommand, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.STDOUT, 
+            shell=True, 
+            universal_newlines=True
+            )
+        Output.status_bar(process=process)
+        # to be polite
+        print
+
+        self.output_file = self.ffcommand.split('/')[-1]
+        if not os.path.exists(
+            os.path.join(self.workdir, self.output_file)
+            ):
+            ErrorObject().print_error(
+                message = 'Source File (local) NOT FOUND',
+                )
+
+
+    def _VALIDATE_ENCODE(self):
+        """
+        Validate encode by matching (w/in 5 sec) encode duration,
+        as well as standard validation tests
+        """
+        self.encoded = ValidateVideo(
+            filepath=os.path.join(self.workdir, self.source_file),
+            product_file=True,
+            VideoObject=self.VideoObject
+            ).valid
+
+
+    def _DELIVER_FILE(self):
+        pass
+
+        # """
+        # Run the commands, which tests for a file and returns
+        # a bool and the filename
+        # """
+        # for E in self.AbstractionLayer.Encodes:
+        #     FF = CommandExecute(
+        #         ffcommand = E.ffcommand, 
+        #         )
+        #     E.complete = FF.activate()
+        #     E.output_file = FF.output
+        #     """just polite"""
+        #     print('')
+        #     """"""
+        #     if E.complete is False:
+        #         return False
+        
+        # self.AbstractionLayer.complete = True
+        # return True
 
     # def complete(self):
     #     """

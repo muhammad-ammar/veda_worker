@@ -20,6 +20,7 @@ AbstractionLayer Object (acts as master abstraction)
 from reporting import ErrorObject, Output
 import generate_apitoken 
 from config import WorkerSetup
+from global_vars import *
 
 WS = WorkerSetup()
 if os.path.exists(WS.instance_yaml):
@@ -59,6 +60,15 @@ class Video():
             ErrorObject().print_error(
                 message = 'VEDA API Config Incorrect, run test to debug'
                 )
+            return None
+        """
+        test case
+        """
+        if self.veda_id is None:
+            self.mezz_extension = '.mp4'
+            self.mezz_title = TEST_VIDEO_FILE
+            self.mezz_filepath = os.path.join(TEST_VIDEO_DIR, TEST_VIDEO_FILE)
+            self.valid = True
             return None
 
         """
@@ -130,8 +140,6 @@ class Encode():
         self.upload_filesize = None
         self.endpoint_url = None
 
-        self.complete = False
-        self.delivered = False
 
     def pull_data(self):
 

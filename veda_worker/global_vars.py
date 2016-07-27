@@ -37,7 +37,7 @@ TEST_VIDEO_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
     'VEDA_TESTFILES'
     )
-TEST_VIDEO_FILE = 'XXXXXXXX2016-V00TEST'
+TEST_VIDEO_FILE = 'XXXXXXXX2016-V00TEST.mp4'
 
 """
 TERM COLORS
