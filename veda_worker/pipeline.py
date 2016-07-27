@@ -3,6 +3,9 @@ import os
 import sys
 
 """
+TO BE DELETED
+
+
 Actual transcode pipeline
 
 """
@@ -66,16 +69,16 @@ class Pipeline():
         """
         QA and Deliver Files
         """
-        for E in self.AbstractionLayer.Encodes:
-            Q1 = QAVideo(
-                filepath=E.output_file, 
-                VideoObject=self.AbstractionLayer.VideoObject,
-                mezz_file=False
-                )
-            """
-            This should continue, even if one file is missing
-            """
-            E.complete = Q1.activate()
+        # for E in self.AbstractionLayer.Encodes:
+        #     Q1 = QAVideo(
+        #         filepath=E.output_file, 
+        #         VideoObject=self.AbstractionLayer.VideoObject,
+        #         mezz_file=False
+        #         )
+        #     """
+        #     This should continue, even if one file is missing
+        #     """
+        #     E.complete = Q1.activate()
 
         for E in self.AbstractionLayer.Encodes:
             E.delivered = self._DELIVER_FILE(E)

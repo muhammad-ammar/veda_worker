@@ -1,4 +1,6 @@
-VEDA Worker
+¡INCOMPLETE!
+=====================
+VEDA Worker 
 =====================
 
 Worker node clone for edx-VEDA
@@ -32,6 +34,12 @@ Usage
         encode_profile = '${ENCODE_ID}'
         )
 
+
+Test (nose)
+
+::
+
+    VW.test()
 
 
 **@yro / 2016**

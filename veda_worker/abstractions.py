@@ -130,8 +130,6 @@ class Encode():
         self.upload_filesize = None
         self.endpoint_url = None
 
-        self.complete = False
-        self.delivered = False
 
     def pull_data(self):
 
