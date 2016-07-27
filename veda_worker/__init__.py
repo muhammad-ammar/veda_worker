@@ -70,10 +70,6 @@ class VedaWorker():
         '''Return to previous state'''
         os.chdir(current_dir)
         return test_bool
-    
-
-    def celery_run(self):
-        print 'CEL TEST'
 
 
     def run(self):
@@ -126,8 +122,7 @@ class VedaWorker():
         self._EXECUTE_ENCODE()
         self._VALIDATE_ENCODE()
         if self.encoded is True:
-            
-
+            print 'WORK HERE -- Deliver'
 
 
     def _ENG_INTAKE(self):
