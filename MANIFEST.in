@@ -1,4 +1,6 @@
 include README.rst
+include default_config.yaml
+include default_encode_profiles.json
 include VEDA_TESTFILES/*.mp4
 include VEDA_TESTFILES/*.jpg
-include
+include veda_worker/tests/*
