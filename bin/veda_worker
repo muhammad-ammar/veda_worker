@@ -9,6 +9,8 @@ Command Line Interface
 """
 from veda_worker import VedaWorker
 
+
+
 class VedaWorkerCli():
 
     def __init__(self):

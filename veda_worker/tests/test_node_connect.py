@@ -49,16 +49,23 @@ class TestCeleryConnect(unittest.TestCase):
             self.assertTrue(True)
             return None
 
-        ###### This is yuck, but I am in a hurry ######
+        """
+        This is yuck, but I am in a hurry
+        """
         os.chdir(os.path.dirname(os.path.dirname(__file__)))
-        worker_call = 'python celeryapp.py worker --loglevel=info --concurrency=1 -Q ' + str(self.settings['celery_queue'])
-        a1 = subprocess.Popen(worker_call, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        worker_call = 'python celeryapp.py worker --loglevel=info --concurrency=1 -Q ' \
+            + str(self.settings['celery_queue'])
+        a1 = subprocess.Popen(
+            worker_call, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+            )
 
         print '** 10 sec of sleep while node connects to cluster **'
         time.sleep(10)
 
         a1.kill() ##Otherwise it's FOREVER
-        test_command = 'Connected to amqp://'+self.settings['rabbitmq_user']+':**@'+self.settings['rabbitmq_broker']+':5672//'
+        test_command = 'Connected to amqp://'+self.settings['rabbitmq_user']+\
+            ':**@'+self.settings['rabbitmq_broker']+':5672//'
+
         for line in iter(a1.stdout.readline, b''):
             if test_command in line:
                 self.assertTrue(True)

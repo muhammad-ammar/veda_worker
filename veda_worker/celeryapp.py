@@ -10,12 +10,8 @@ Start Celery Worker (if VEDA-attached node)
 """
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# from veda_worker import VedaWorker
-
 from celery import Celery
 from config import WorkerSetup
-
-# from veda_worker.__init__ import VedaWorker
 
 WS = WorkerSetup()
 if os.path.exists(WS.instance_yaml):
@@ -31,8 +27,10 @@ import celery_task_fire
 def cel_Start():
     app = Celery(
         settings['celery_app_name'],
-        broker='amqp://' + settings['rabbitmq_user'] + ':' + settings['rabbitmq_pass'] + '@' + settings['rabbitmq_broker'] + ':5672//',
-        backend='amqp://' + settings['rabbitmq_user'] + ':' + settings['rabbitmq_pass'] + '@' + settings['rabbitmq_broker'] + ':5672//',
+        broker='amqp://' + settings['rabbitmq_user'] + \
+            ':' + settings['rabbitmq_pass'] + '@' + settings['rabbitmq_broker'] + ':5672//',
+        backend='amqp://' + settings['rabbitmq_user'] + \
+            ':' + settings['rabbitmq_pass'] + '@' + settings['rabbitmq_broker'] + ':5672//',
         include=['celery_task_fire']
         )
 
