@@ -1,0 +1,88 @@
+#!/usr/bin/env python
+import os
+import sys
+import argparse
+
+"""
+Copyright (C) 2016 @yro | Gregory Martin
+Command Line Interface
+"""
+from veda_worker import VedaWorker
+
+class VedaWorkerCli():
+
+    def __init__(self):
+        self.args = None
+        self.test = False
+
+
+    def get_args(self):
+        parser = argparse.ArgumentParser()
+        parser.usage = '''
+        {cmd} -v VEDAID
+        {cmd} -setup SetUp
+        {cmd} -test Test
+        {cmd} -e Encode
+        [-v -setup -test -e]
+        Use --help to see all options.
+        '''.format(cmd=sys.argv[0])
+
+        parser.add_argument(
+            '-v', '--vedaid', default=None, 
+            help='VEDA ID for source'
+            )
+
+        parser.add_argument(
+            '-e', '--profile', 
+            help='Encode Profile', 
+            )
+
+        parser.add_argument(
+            '-setup', '--setup', 
+            help='Configure Instance Credentials (one time)', 
+            action='store_true'
+            )
+
+        parser.add_argument(
+            '-t', '--test', 
+            help='Test Configuration of Instance', 
+            action='store_true'
+            )
+
+        self.args = parser.parse_args()
+
+        self._PARSE_ARGS()
+
+
+    def _PARSE_ARGS(self):
+        self.veda_id = self.args.vedaid
+        self.encode_profile = self.args.profile
+        self.test = self.args.test
+        self.setup = self.args.setup
+
+
+    def _RUN(self):
+        """
+        run actual instance
+        """
+        VW = VedaWorker(
+            veda_id=self.veda_id,
+            encode_profile=self.encode_profile,
+            setup=self.setup
+            )
+        if self.test is True:
+            VW.test()
+        else:
+            VW.run()
+
+
+
+def main():
+    VW = VedaWorkerCli()
+    VW.get_args()
+    VW._RUN()
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+

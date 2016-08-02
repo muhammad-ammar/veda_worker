@@ -16,6 +16,13 @@ Generate a serial transcode stream from
 a VEDA instance via Celery
 
 """
+from celeryapp import cel_Start
+app = cel_Start()
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    )
+import celery_task_fire
+
 
 from global_vars import *
 from reporting import ErrorObject, Output
@@ -48,6 +55,7 @@ class VedaWorker():
         self.ffcommand = None
         self.source_file = None
         self.output_file = None
+        self.endpoint_url = None
         #---#
         # Pipeline Steps
         self.encoded = False
@@ -125,7 +133,15 @@ class VedaWorker():
         if self.encoded is True:
             self._DELIVER_FILE()
 
+        if self.endpoint_url is not None:
+            print self.endpoint_url
+            final_name = self.output_file
+            celery_task_fire.deliverable_route.apply_async(
+                (final_name, ),
+                queue='transcode_stat'
+                )
 
+            # deliverable_route.apply
 
 
     def _ENG_INTAKE(self):
@@ -253,7 +269,7 @@ class VedaWorker():
 
     def _DELIVER_FILE(self):
         """
-        Deliver Here
+        Deliver Here // FOR NOW: go to the 
         """
         if not os.path.exists(
             os.path.join(self.workdir, self.output_file)
@@ -265,60 +281,13 @@ class VedaWorker():
             encode_profile=self.encode_profile,
             output_file=self.output_file
             )
-        # passed = D1.activate()
-        # else:
-            # passed = True
-
-        # if passed is False: 
-        #     return False
-            
-        # E.upload_filesize = D1.upload_filesize
-        # E.hash_sum = D1.hash_sum
-        # E.endpoint_url = D1.endpoint_url
-        # return True
-
-
-        # pass
-
-        # """
-        # Run the commands, which tests for a file and returns
-        # a bool and the filename
-        # """
-        # for E in self.AbstractionLayer.Encodes:
-        #     FF = CommandExecute(
-        #         ffcommand = E.ffcommand, 
-        #         )
-        #     E.complete = FF.activate()
-        #     E.output_file = FF.output
-        #     """just polite"""
-        #     print('')
-        #     """"""
-        #     if E.complete is False:
-        #         return False
-        
-        # self.AbstractionLayer.complete = True
-        # return True
-
-    # def complete(self):
-    #     """
-    #     Determine, reportback completion
-    #     """
-    #     TestReport(self.Pipeline.AbstractionLayer.complete, 'Complete')
-    #     TestReport(self.Pipeline.AbstractionLayer.delivered, 'Delivered')
-
-    #     if self.Pipeline.AbstractionLayer.complete is True and \
-    #     self.Pipeline.AbstractionLayer.delivered is True:
-    #         return True
-    #     else:
-    #         return False
-
+        D1.run()
+        self.delivered = D1.delivered
+        self.endpoint_url = D1.endpoint_url
 
 
 def main():
     pass
-#     #--OK
-#     VW1 = VedaWorker(setup=True)
-#     VW1.run()
 
 
 if __name__ == '__main__':

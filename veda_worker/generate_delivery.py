@@ -5,8 +5,6 @@ import boto
 import boto.s3
 from boto.s3.key import Key
 import shutil
-# import ftplib
-# import pysftp
 import hashlib
 
 """
@@ -74,38 +72,13 @@ class Deliverable():
         if self.delivered is False:
             return None
 
-        #         self.endpoint_url = '/'.join((
-        #             'https://s3.amazonaws.com', 
-        #             self.Settings.DELIVERY_ENDPOINT, 
-        #             self.EncodeObject.output_file.split('/')[-1]
-        #             ))
-        #         return True
+        self.endpoint_url = '/'.join((
+            'https://s3.amazonaws.com',
+                settings['aws_deliver_bucket'], 
+                self.output_file
+                ))
+        return True
 
-        #     else:
-        #         self.complete = self._ftp_upload()
-        #         if self.complete is False:
-        #             return False
-
-        #         """
-        #         Groom URL
-        #         TODO : Dir cleaning
-        #         """
-        #         if self.Settings.DELIVERY_ENDPOINT[-1] == '/':
-        #             url = self.Settings.DELIVERY_ENDPOINT + self.EncodeObject.output_file.split('/')[-1]
-        #         else:
-        #             url = '/'.join((
-        #                 self.Settings.DELIVERY_ENDPOINT, 
-        #                 self.EncodeObject.output_file.split('/')[-1]
-        #                 ))
-
-        #         if self.Settings.SSL_ENDPOINT is True:
-        #             self.endpoint_url = url.replace('ftp://', 'https://')
-        #         else:
-        #             self.endpoint_url = url.replace('ftp://', 'http://')
-        #         return True
-        # else:
-        #     ## No delivery
-        #     return True
 
 
     def _s3_upload(self):
