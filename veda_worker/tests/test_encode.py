@@ -51,7 +51,7 @@ class Test_Encode_Command(unittest.TestCase):
         Generate the (shell) command / Encode Object
         """
         self.assertTrue(self.VideoObject.valid is True)
-        self.assertTrue(self.VideoObject.valid is True)
+        # self.assertTrue(self.VideoObject.valid is True)
 
         """
         Generate the Encode Object

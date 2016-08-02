@@ -2,7 +2,7 @@
 
 ## V1:
 
-- [ ] Logging vs. Stdio (API alerting)
+- [-] Logging vs. Stdio (API alerting)
 
 - [x] Better error surfacing (much better)
 
@@ -10,7 +10,7 @@
 
 - [-] RNN integration with big veda
 
-- [ ] Cluster integration/testing
+- [x] Cluster integration/testing
 
 ---
 

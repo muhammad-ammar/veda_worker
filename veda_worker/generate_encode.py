@@ -29,17 +29,30 @@ settings = WS.settings_dict
 
 class CommandGenerate():
 
-    def __init__(self, VideoObject, EncodeObject):
+    def __init__(self, VideoObject, EncodeObject, **kwargs):
         self.VideoObject = VideoObject
         self.EncodeObject = EncodeObject
-
+        self.jobid = kwargs.get('jobid', None)
         self.ffcommand = []
-        self.workdir = os.path.join(
-            os.path.dirname(
-                os.path.dirname(os.path.abspath(__file__))
-                ),
-            'VEDA_WORKING'
-            )
+
+        if self.jobid is None:
+            self.workdir = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                'VEDA_WORKING'
+                )
+        else:
+            self.workdir = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                'VEDA_WORKING',
+                self.jobid
+                )
+
+        # self.workdir = os.path.join(
+        #     os.path.dirname(
+        #         os.path.dirname(os.path.abspath(__file__))
+        #         ),
+        #     'VEDA_WORKING'
+        #     )
 
 
     def generate(self):
