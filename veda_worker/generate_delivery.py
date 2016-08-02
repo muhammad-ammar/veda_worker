@@ -88,7 +88,6 @@ class Deliverable():
         return True
 
 
-
     def _s3_upload(self):
         """
         Upload single part (under threshold in node_config)
@@ -187,12 +186,7 @@ class Deliverable():
 
 
 def main():
-    D1 = Deliverable(
-        VideoObject=None,
-        output_file='HARSW471T314-V001400.mov',
-        encode_profile=None
-        )
-    D1.run()
+    pass
 
 
 if __name__ == '__main__':

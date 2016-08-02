@@ -3,6 +3,7 @@ import os
 import sys
 import nose
 import subprocess
+import shutil
 import boto
 try:
     boto.config.add_section('Boto')
@@ -45,9 +46,13 @@ class VedaWorker():
         self.veda_id =  kwargs.get('veda_id', None)
         self.setup = kwargs.get('setup', False)
         self.jobid = kwargs.get('jobid', None)
-        #---#
+        """#---#"""
         self.encode_profile = kwargs.get('encode_profile', None)
         self.VideoObject = None
+
+        """
+        Yucky working directory stuff
+        """
         if self.jobid is None:
             self.workdir = os.path.join(
                 os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -59,16 +64,25 @@ class VedaWorker():
                 'VEDA_WORKING',
                 self.jobid
                 )
-        #---#
+
+        if not os.path.exists(os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                'VEDA_WORKING'
+                )):
+            os.mkdir(os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                'VEDA_WORKING'
+                ))
+
+        """#---#"""
         self.ffcommand = None
         self.source_file = None
         self.output_file = None
         self.endpoint_url = None
-        #---#
-        # Pipeline Steps
+
+        """Pipeline Steps"""
         self.encoded = False
         self.delivered = False
-        self.complete = False
 
 
     def test(self):
@@ -142,13 +156,33 @@ class VedaWorker():
             self._DELIVER_FILE()
 
         if self.endpoint_url is not None:
-            print self.endpoint_url
+            """
+            Integrate with main
+            """
             final_name = self.output_file
             celery_task_fire.deliverable_route.apply_async(
                 (final_name, ),
                 queue='transcode_stat'
                 )
 
+        """
+        Clean up workdir
+        """
+        if self.jobid is not None:
+            shutil.rmtree(self.workdir)
+        else:
+            os.remove(
+                os.path.join(
+                    self.workdir,
+                    self.output_file
+                    )
+                )
+            os.remove(
+                os.path.join(
+                    self.workdir,
+                    self.source_file
+                    )
+                )
 
 
     def _ENG_INTAKE(self):

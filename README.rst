@@ -1,4 +1,3 @@
-¡INCOMPLETE!
 =====================
 VEDA Worker 
 =====================
@@ -32,6 +31,7 @@ Usage
     VW = VedaWorker(
         veda_id = '${ID_STRING}'
         encode_profile = '${ENCODE_ID}'
+        jobid='${JOB_ID}'
         )
 
 
@@ -40,6 +40,24 @@ Test (nose)
 ::
 
     VW.test()
+
+
+Celery Async
+
+::
+
+    import celery_task_fire
+
+::
+
+    veda_id='${ID_STRING}'
+    encode_profile='${ENCODE_ID}'
+    jobid='${JOB_ID}'
+
+    celery_task_fire.vw_task_fire.apply_async(
+        (veda_id, encode_profile, jobid),
+        queue='test_node'
+        )
 
 
 **@yro / 2016**
