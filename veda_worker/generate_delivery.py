@@ -5,8 +5,8 @@ import boto
 import boto.s3
 from boto.s3.key import Key
 import shutil
-import ftplib
-import pysftp
+# import ftplib
+# import pysftp
 import hashlib
 
 """
@@ -15,33 +15,48 @@ from VEDA_WORK_DIR, retrieves and checks URL, and passes info to objects
 
 """
 
-root_dir = os.path.dirname(os.path.dirname(__file__))
-sys.path.append(root_dir)
+# root_dir = os.path.dirname(os.path.dirname(__file__))
+# sys.path.append(os.path.dirname(os.path.dirname(
+#     os.path.abspath(__file__)
+#     )))
+from global_vars import *
 from reporting import ErrorObject
+from config import WorkerSetup
+WS = WorkerSetup()
+if os.path.exists(WS.instance_yaml):
+    WS.run()
+settings = WS.settings_dict
+
 
 
 class Deliverable():
 
-    def __init__(self, Settings, EncodeObject, **kwargs):
-        self.Settings = Settings
-        self.EncodeObject = EncodeObject
-
-        self.sftp_port = kwargs.get('sftp_port',19321)
-
+    def __init__(self, VideoObject, encode_profile, output_file):
+        self.VideoObject = VideoObject
+        self.encode_profile = encode_profile
+        self.output_file = output_file
+        #---#
         self.endpoint_url = None
         self.hash_sum = 0
         self.upload_filesize = 0
-        self.complete = False
+        self.delivered = False
 
 
-    def activate(self):
-        if not os.path.exists(self.EncodeObject.output_file):
-            return False
+    def run(self):
+        """
+        Get file particulars, upload to s3
+        """
+        # file size
+        self.upload_filesize = os.stat(
+            os.path.join(self.workdir, self.output_file)
+            ).st_size
+        # hash sum
+        self.hash_sum = hashlib.md5(
+            open(os.path.join(self.workdir, self.output_file), 'rb').read()
+            ).hexdigest()
 
-        self.upload_filesize = os.stat(self.EncodeObject.output_file).st_size
-        self.hash_sum = hashlib.md5(open(self.EncodeObject.output_file, 'rb').read()).hexdigest()
-        if len(self.Settings.DELIVERY_ENDPOINT) > 0:
-            if self.Settings.S3_DELIVER is True:
+        # if len(self.Settings.DELIVERY_ENDPOINT) > 0:
+            # if self.Settings.S3_DELIVER is True:
                 
                 if self.upload_filesize < self.Settings.MULTI_UPLOAD_BARRIER:
                     """

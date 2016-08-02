@@ -24,6 +24,7 @@ from abstractions import Video, Encode
 from validate import ValidateVideo
 from api_communicate import UpdateAPIStatus
 from generate_encode import CommandGenerate
+from generate_delivery import Deliverable
 
 
 
@@ -122,7 +123,9 @@ class VedaWorker():
         self._EXECUTE_ENCODE()
         self._VALIDATE_ENCODE()
         if self.encoded is True:
-            print 'WORK HERE -- Deliver'
+            self._DELIVER_FILE()
+
+
 
 
     def _ENG_INTAKE(self):
@@ -242,14 +245,40 @@ class VedaWorker():
         as well as standard validation tests
         """
         self.encoded = ValidateVideo(
-            filepath=os.path.join(self.workdir, self.source_file),
+            filepath=os.path.join(self.workdir, self.output_file),
             product_file=True,
             VideoObject=self.VideoObject
             ).valid
 
 
     def _DELIVER_FILE(self):
-        pass
+        """
+        Deliver Here
+        """
+        if not os.path.exists(
+            os.path.join(self.workdir, self.output_file)
+            ):
+            return None
+
+        D1 = Deliverable(
+            VideoObject=self.VideoObject,
+            encode_profile=self.encode_profile,
+            output_file=self.output_file
+            )
+        # passed = D1.activate()
+        # else:
+            # passed = True
+
+        # if passed is False: 
+        #     return False
+            
+        # E.upload_filesize = D1.upload_filesize
+        # E.hash_sum = D1.hash_sum
+        # E.endpoint_url = D1.endpoint_url
+        # return True
+
+
+        # pass
 
         # """
         # Run the commands, which tests for a file and returns
