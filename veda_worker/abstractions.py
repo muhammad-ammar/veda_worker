@@ -127,7 +127,6 @@ class Encode():
     A basic class for easy programatic access to the diff salient variables
     """
     def __init__(self, VideoObject, profile_name):
-        # self.Settings = Settings
         self.ffcommand = ''
         self.VideoObject = VideoObject
         self.profile_name = profile_name

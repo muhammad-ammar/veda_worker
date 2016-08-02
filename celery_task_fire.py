@@ -21,7 +21,7 @@ app = cel_Start()
 
 
 @app.task
-def vw_task_fire(veda_id, encode_profile):
+def vw_task_fire(veda_id, encode_profile, jobid):
     task_command = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
         'bin',
@@ -31,8 +31,11 @@ def vw_task_fire(veda_id, encode_profile):
     task_command += '-v ' + veda_id
     task_command += ' '
     task_command += '-e ' + encode_profile
+    task_command += ' '
+    task_command += '-j ' + jobid
 
     os.system(task_command)
+
 
 @app.task
 def deliverable_route(final_name):

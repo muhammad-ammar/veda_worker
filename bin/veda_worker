@@ -23,6 +23,7 @@ class VedaWorkerCli():
         {cmd} -setup SetUp
         {cmd} -test Test
         {cmd} -e Encode
+        {cmd} -j Job
         [-v -setup -test -e]
         Use --help to see all options.
         '''.format(cmd=sys.argv[0])
@@ -44,6 +45,12 @@ class VedaWorkerCli():
             )
 
         parser.add_argument(
+            '-j', '--job', 
+            help='Job ID',
+            default=None
+            )
+
+        parser.add_argument(
             '-t', '--test', 
             help='Test Configuration of Instance', 
             action='store_true'
@@ -57,6 +64,7 @@ class VedaWorkerCli():
     def _PARSE_ARGS(self):
         self.veda_id = self.args.vedaid
         self.encode_profile = self.args.profile
+        self.jobid = self.args.job
         self.test = self.args.test
         self.setup = self.args.setup
 
@@ -68,7 +76,8 @@ class VedaWorkerCli():
         VW = VedaWorker(
             veda_id=self.veda_id,
             encode_profile=self.encode_profile,
-            setup=self.setup
+            setup=self.setup,
+            jobid = self.jobid
             )
         if self.test is True:
             VW.test()

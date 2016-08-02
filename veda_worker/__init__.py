@@ -42,15 +42,23 @@ class VedaWorker():
         Init settings / 
         """
         self.settings = None
-        self.workdir = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            'VEDA_WORKING'
-            )
         self.veda_id =  kwargs.get('veda_id', None)
         self.setup = kwargs.get('setup', False)
+        self.jobid = kwargs.get('jobid', None)
         #---#
         self.encode_profile = kwargs.get('encode_profile', None)
         self.VideoObject = None
+        if self.jobid is None:
+            self.workdir = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                'VEDA_WORKING'
+                )
+        else:
+            self.workdir = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                'VEDA_WORKING',
+                self.jobid
+                )
         #---#
         self.ffcommand = None
         self.source_file = None
@@ -141,7 +149,6 @@ class VedaWorker():
                 queue='transcode_stat'
                 )
 
-            # deliverable_route.apply
 
 
     def _ENG_INTAKE(self):
@@ -218,7 +225,8 @@ class VedaWorker():
 
         self.ffcommand = CommandGenerate(
             VideoObject = self.VideoObject,
-            EncodeObject = E
+            EncodeObject = E,
+            jobid=self.jobid
             ).generate()
 
 
@@ -279,7 +287,8 @@ class VedaWorker():
         D1 = Deliverable(
             VideoObject=self.VideoObject,
             encode_profile=self.encode_profile,
-            output_file=self.output_file
+            output_file=self.output_file,
+            jobid=self.jobid
             )
         D1.run()
         self.delivered = D1.delivered

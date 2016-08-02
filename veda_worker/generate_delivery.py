@@ -26,14 +26,22 @@ settings = WS.settings_dict
 
 class Deliverable():
 
-    def __init__(self, VideoObject, encode_profile, output_file):
+    def __init__(self, VideoObject, encode_profile, output_file, **kwargs):
         self.VideoObject = VideoObject
         self.encode_profile = encode_profile
         self.output_file = output_file
-        self.workdir = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            'VEDA_WORKING'
-            )
+        self.jobid = kwargs.get('jobid', None)
+        if self.jobid is None:
+            self.workdir = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                'VEDA_WORKING'
+                )
+        else:
+            self.workdir = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                'VEDA_WORKING',
+                self.jobid
+                )
         #---#
         self.endpoint_url = None
         self.hash_sum = 0
