@@ -230,31 +230,31 @@ class Pipeline():
         # return True
 
 
-    def _DELIVER_FILE(self, E):
-        if not os.path.exists(E.output_file):
-            return False
-        if E.complete is False:
-            return False
-        """
-        Deliver Here
-        """
-        # if len(self.Settings.DELIVERY_ENDPOINT) > 0:
-        D1 = Deliverable(
-            Settings=self.Settings,
-            VideoObject=self.AbstractionLayer.VideoObject, 
-            EncodeObject=E
-            )
-        passed = D1.activate()
-        # else:
-            # passed = True
+    # def _DELIVER_FILE(self, E):
+        # if not os.path.exists(E.output_file):
+        #     return False
+        # if E.complete is False:
+        #     return False
+        # """
+        # Deliver Here
+        # """
+        # # if len(self.Settings.DELIVERY_ENDPOINT) > 0:
+        # D1 = Deliverable(
+        #     Settings=self.Settings,
+        #     VideoObject=self.AbstractionLayer.VideoObject, 
+        #     EncodeObject=E
+        #     )
+        # passed = D1.activate()
+        # # else:
+        #     # passed = True
 
-        if passed is False: 
-            return False
+        # if passed is False: 
+        #     return False
             
-        E.upload_filesize = D1.upload_filesize
-        E.hash_sum = D1.hash_sum
-        E.endpoint_url = D1.endpoint_url
-        return True
+        # E.upload_filesize = D1.upload_filesize
+        # E.hash_sum = D1.hash_sum
+        # E.endpoint_url = D1.endpoint_url
+        # return True
 
 
 
