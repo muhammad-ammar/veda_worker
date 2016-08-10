@@ -164,18 +164,6 @@ class VedaWorker():
         """
         Clean up workdir
         """
-        # os.remove(
-        #     os.path.join(
-        #         self.workdir,
-        #         self.output_file
-        #         )
-        #     )
-        # os.remove(
-        #     os.path.join(
-        #         self.workdir,
-        #         self.source_file
-        #         )
-        #     )
         if self.jobid is not None:
             shutil.rmtree(
                 os.path.join(
