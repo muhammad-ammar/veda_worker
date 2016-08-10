@@ -45,5 +45,10 @@ def deliverable_route(final_name):
     pass
 
 
+@app.task
+def test_command(message):
+    print message
+
+
 if __name__ == "__main__":
     pass
