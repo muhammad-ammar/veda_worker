@@ -42,6 +42,13 @@ def cel_Start():
 
     return app
 
+app = cel_Start()
+
+
+@app.task
+def test_message(message):
+    print message
+
 
 if __name__ == '__main__':
     app = cel_Start()
