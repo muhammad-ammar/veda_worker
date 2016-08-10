@@ -8,7 +8,7 @@ import argparse
 """
 Copyright (C) 2016 @yro | Gregory Martin
 
-Command Line Interface
+
 """
 sys.path.append(
     os.path.join(
