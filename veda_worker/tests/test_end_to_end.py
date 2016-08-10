@@ -7,6 +7,8 @@ import shutil
 """
 This represents an end-to-end 'master' test of openVEDA
 
+NOTE: This is not refactored, and will not run
+
 """
 
 sys.path.append(

@@ -17,14 +17,7 @@ Generate a serial transcode stream from
 a VEDA instance via Celery
 
 """
-from celeryapp import cel_Start
-app = cel_Start()
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    )
-import celery_task_fire
-
-
+import celeryapp
 from global_vars import *
 from reporting import ErrorObject, Output
 from config import WorkerSetup
@@ -150,6 +143,9 @@ class VedaWorker():
 
         self._UPDATE_API()
         self._GENERATE_ENCODE()
+        if self.ffcommand is None:
+            return None
+
         self._EXECUTE_ENCODE()
         self._VALIDATE_ENCODE()
         if self.encoded is True:
@@ -160,7 +156,7 @@ class VedaWorker():
             Integrate with main
             """
             final_name = self.output_file
-            celery_task_fire.deliverable_route.apply_async(
+            celeryapp.deliverable_route.apply_async(
                 (final_name, ),
                 queue='transcode_stat'
                 )
@@ -168,19 +164,26 @@ class VedaWorker():
         """
         Clean up workdir
         """
+        # os.remove(
+        #     os.path.join(
+        #         self.workdir,
+        #         self.output_file
+        #         )
+        #     )
+        # os.remove(
+        #     os.path.join(
+        #         self.workdir,
+        #         self.source_file
+        #         )
+        #     )
         if self.jobid is not None:
-            shutil.rmtree(self.workdir)
-        else:
-            os.remove(
+            shutil.rmtree(
                 os.path.join(
-                    self.workdir,
-                    self.output_file
-                    )
-                )
-            os.remove(
-                os.path.join(
-                    self.workdir,
-                    self.source_file
+                    os.path.dirname(os.path.dirname(
+                        os.path.abspath(__file__))
+                    ),
+                    'VEDA_WORKING',
+                    self.jobid
                     )
                 )
 
@@ -284,6 +287,7 @@ class VedaWorker():
             shell=True, 
             universal_newlines=True
             )
+        print '%s : %s' % (self.VideoObject.veda_id, self.encode_profile)
         Output.status_bar(process=process)
         # to be polite
         print

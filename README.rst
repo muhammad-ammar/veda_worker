@@ -46,7 +46,7 @@ Celery Async
 
 ::
 
-    import celery_task_fire
+    import celeryapp
 
 ::
 
@@ -54,7 +54,7 @@ Celery Async
     encode_profile='${ENCODE_ID}'
     jobid='${JOB_ID}'
 
-    celery_task_fire.vw_task_fire.apply_async(
+    celeryapp.worker_task_fire.apply_async(
         (veda_id, encode_profile, jobid),
         queue='test_node'
         )

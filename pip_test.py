@@ -7,9 +7,12 @@ simple pip tester
 """
 from veda_worker import VedaWorker
 sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        'veda_worker'
+        )
     )
-import celery_task_fire
+import celeryapp
 
 
 def pip_test():
@@ -27,7 +30,7 @@ def cel_test():
     encode_profile='desktop_mp4'
     jobid='xx4xx'
 
-    celery_task_fire.vw_task_fire.apply_async(
+    celeryapp.worker_task_fire.apply_async(
         (veda_id, encode_profile, jobid),
         queue='test_node'
         )

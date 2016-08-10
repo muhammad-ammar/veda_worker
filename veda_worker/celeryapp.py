@@ -18,11 +18,6 @@ if os.path.exists(WS.instance_yaml):
     WS.run()
 settings = WS.settings_dict
 
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    )
-import celery_task_fire
-
 
 def cel_Start():
     app = Celery(
@@ -31,7 +26,7 @@ def cel_Start():
             ':' + settings['rabbitmq_pass'] + '@' + settings['rabbitmq_broker'] + ':5672//',
         backend='amqp://' + settings['rabbitmq_user'] + \
             ':' + settings['rabbitmq_pass'] + '@' + settings['rabbitmq_broker'] + ':5672//',
-        include=['celery_task_fire']
+        include=['celeryapp']
         )
 
     app.conf.update(
@@ -46,7 +41,40 @@ app = cel_Start()
 
 
 @app.task
-def test_message(message):
+def worker_task_fire(veda_id, encode_profile, jobid):
+    task_command = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        'bin',
+        'veda_worker'
+        )
+    task_command += ' '
+    task_command += '-v ' + veda_id
+    task_command += ' '
+    task_command += '-e ' + encode_profile
+    task_command += ' '
+    task_command += '-j ' + jobid
+
+    os.system(task_command)
+
+
+@app.task
+def deliverable_route(final_name):
+    """
+    Just register this task with big veda
+    """
+    pass
+
+
+@app.task
+def queue_transcode(vid_name, encode_command):
+    """
+    Just register this task with big veda
+    """
+    pass
+
+
+@app.task
+def test_command(message):
     print message
 
 
