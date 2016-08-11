@@ -151,14 +151,16 @@ class Encode():
                 )
             return None
 
-        data = {}
+        data = {
+            'product_spec' : self.profile_name
+            }
+
         headers = {'Authorization': 'Bearer ' + veda_token, 'content-type': 'application/json'}
         x = requests.get(
             '/'.join((settings['veda_api_url'], 'encodes')), 
             params=data, 
             headers=headers
             )
-
         enc_dict = json.loads(x.text)   
 
         if len(enc_dict['results']) == 0:
@@ -169,14 +171,18 @@ class Encode():
 
         for e in enc_dict['results']:
             if e['product_spec'] == self.profile_name and e['profile_active'] is True:
+                print self.profile_name
                 self.resolution = e['encode_resolution']
                 self.rate_factor = e['encode_bitdepth']
                 self.filetype = e['encode_filetype']
                 self.encode_suffix = e['encode_suffix']
                 self.encode_pk = e['id']
         
-        if self.encode_suffix == None: return None
-
+        if self.encode_suffix == None:
+            ErrorObject().print_error(
+                message="VEDA API Encode Data Fail: No Suffix"
+                )
+            return None
 
 
 def main():
