@@ -40,7 +40,7 @@ def cel_Start():
 app = cel_Start()
 
 
-@app.task
+@app.task(name='worker_encode')
 def worker_task_fire(veda_id, encode_profile, jobid):
     task_command = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -57,7 +57,7 @@ def worker_task_fire(veda_id, encode_profile, jobid):
     os.system(task_command)
 
 
-@app.task
+@app.task(name='supervisor_deliver')
 def deliverable_route(final_name):
     """
     Just register this task with big veda
