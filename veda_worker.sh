@@ -22,5 +22,5 @@ QUEUE=${QUEUE#*: }
 CONCUR=$(cat ${DIR}/instance_config.yaml | grep celery_threads)
 CONCUR=${CONCUR#*: }
 
-python /Users/tiagorodriguez/Desktop/veda_worker/veda_worker/celeryapp.py worker --loglevel=info --concurrency=${CONCUR} -Q ${QUEUE}
+python ${DIR}/veda_worker/celeryapp.py worker --loglevel=info --concurrency=${CONCUR} -Q ${QUEUE}
 
