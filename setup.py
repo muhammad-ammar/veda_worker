@@ -22,6 +22,8 @@ setup(
         'boto',
         'requests',
         'pysftp',
+        'celery'
+        'pyyaml'
     ],
     zip_safe=False
     )
