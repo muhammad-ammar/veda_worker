@@ -14,7 +14,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd ${DIR}
 
 echo "Initializing"
-nosetests
+E=`nosetests -s`
 
 # Get vars from yaml
 QUEUE=$(cat ${DIR}/instance_config.yaml | grep celery_queue)
@@ -22,5 +22,11 @@ QUEUE=${QUEUE#*: }
 CONCUR=$(cat ${DIR}/instance_config.yaml | grep celery_threads)
 CONCUR=${CONCUR#*: }
 
-python ${DIR}/veda_worker/celeryapp.py worker --loglevel=info --concurrency=${CONCUR} -Q ${QUEUE}
+if [[ $E == *"*****"* ]]
+then
+    echo "*FAILED TEST*";
+else
+    python ${DIR}/veda_worker/celeryapp.py worker --loglevel=info --concurrency=${CONCUR} -Q ${QUEUE}
+fi
+
 

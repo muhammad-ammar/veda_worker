@@ -10,7 +10,7 @@ def readme():
 
 setup(
     name='veda_worker',
-    version='0.1',
+    version='1.0',
     description='Node worker for VEDA',
     long_description=readme(),
     url='http://github.com/yro/veda_worker',
@@ -21,8 +21,7 @@ setup(
     install_requires=[
         'boto',
         'requests',
-        'pysftp',
-        'celery'
+        'celery',
         'pyyaml'
     ],
     zip_safe=False
