@@ -24,7 +24,8 @@ CONCUR=${CONCUR#*: }
 
 if [[ $E == *"*****"* ]]
 then
-    echo "*FAILED TEST*";
+    # purposefully generate an error to raise terraform, etc.
+    exit 64;
 else
     python ${DIR}/veda_worker/celeryapp.py worker --loglevel=info --concurrency=${CONCUR} -Q ${QUEUE}
 fi
