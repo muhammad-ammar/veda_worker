@@ -1,99 +1,33 @@
-#!/usr/bin/env python
-import os
-import sys
-import argparse
+#!/bin/bash
+#--- Startup Script for VEDA Worker --#
 
-"""
-Copyright (C) 2016 @yro | Gregory Martin
-Command Line Interface
-"""
-from veda_worker import VedaWorker
+echo "
+__     _______ ____    _   __        __         _             
+\ \   / | ____|  _ \  / \  \ \      / ___  _ __| | _____ _ __ 
+ \ \ / /|  _| | | | |/ _ \  \ \ /\ / / _ \| '__| |/ / _ | '__|
+  \ V / | |___| |_| / ___ \  \ V  V | (_) | |  |   |  __| |   
+   \_/  |_____|____/_/   \_\  \_/\_/ \___/|_|  |_|\_\___|_|   
+                                                              
+"
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd ${DIR}
 
+echo "Initializing"
+E=`nosetests -s`
 
-class VedaWorkerCli():
+# Get vars from yaml
+QUEUE=$(cat ${DIR}/instance_config.yaml | grep celery_queue)
+QUEUE=${QUEUE#*: }
+CONCUR=$(cat ${DIR}/instance_config.yaml | grep celery_threads)
+CONCUR=${CONCUR#*: }
 
-    def __init__(self):
-        self.args = None
-        self.test = False
+if [[ $E == *"*****"* ]]
+then
+    # purposefully generate an error to raise terraform, etc.
+    exit 64;
+else
+    python ${DIR}/veda_worker/celeryapp.py worker --loglevel=info --concurrency=${CONCUR} -Q ${QUEUE}
+fi
 
-
-    def get_args(self):
-        parser = argparse.ArgumentParser()
-        parser.usage = '''
-        {cmd} -v VEDAID
-        {cmd} -setup SetUp
-        {cmd} -test Test
-        {cmd} -e Encode
-        {cmd} -j Job
-        [-v -setup -test -e]
-        Use --help to see all options.
-        '''.format(cmd=sys.argv[0])
-
-        parser.add_argument(
-            '-v', '--vedaid', default=None, 
-            help='VEDA ID for source'
-            )
-
-        parser.add_argument(
-            '-e', '--profile', 
-            help='Encode Profile', 
-            )
-
-        parser.add_argument(
-            '-setup', '--setup', 
-            help='Configure Instance Credentials (one time)', 
-            action='store_true'
-            )
-
-        parser.add_argument(
-            '-j', '--job', 
-            help='Job ID',
-            default=None
-            )
-
-        parser.add_argument(
-            '-t', '--test', 
-            help='Test Configuration of Instance', 
-            action='store_true'
-            )
-
-        self.args = parser.parse_args()
-
-        self._PARSE_ARGS()
-
-
-    def _PARSE_ARGS(self):
-        self.veda_id = self.args.vedaid
-        self.encode_profile = self.args.profile
-        self.jobid = self.args.job
-        self.test = self.args.test
-        self.setup = self.args.setup
-
-
-    def _RUN(self):
-        """
-        run actual instance
-        """
-        VW = VedaWorker(
-            veda_id=self.veda_id,
-            encode_profile=self.encode_profile,
-            setup=self.setup,
-            jobid = self.jobid
-            )
-        if self.test is True:
-            VW.test()
-        else:
-            VW.run()
-
-
-
-def main():
-    VW = VedaWorkerCli()
-    VW.get_args()
-    VW._RUN()
-
-
-if __name__ == '__main__':
-    sys.exit(main())
 

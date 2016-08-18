@@ -5,7 +5,7 @@ VEDA Worker
 Worker node clone for edx-VEDA
 ------------------------------
 
-[ALPHA] / 2016.08
+[BETA] / 2016.08
 ~~~~~~~~~~~~~~~~
 
 .. image:: https://travis-ci.org/yro/veda_worker.svg?branch=build_1
@@ -24,7 +24,14 @@ Installation
 Usage
 -----
 
-**Sample Usage** instantiate class:
+**from command line:**
+
+::
+
+    veda_worker
+
+
+**Python** instantiate class:
 
 ::
 
@@ -36,6 +43,7 @@ Usage
 
 
 Test (nose)
+-----
 
 ::
 
@@ -43,6 +51,7 @@ Test (nose)
 
 
 Celery Async
+-----
 
 ::
 
