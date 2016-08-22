@@ -11,7 +11,9 @@ set to pass if instance_config.yaml is missing
 
 """
 
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)
+    )))
 import generate_apitoken
 from config import WorkerSetup
 from reporting import ErrorObject
@@ -91,7 +93,10 @@ class TestAPIConnection(unittest.TestCase):
             'content-type': 'application/json'
             }
         s = requests.get(self.WS.settings_dict['veda_api_url'], headers=headers, timeout=20)
-
+        print s.url
+        print s.text
+        print s.status_code
+        print s.headers
         self.assertFalse(s.status_code == 404)
         self.assertFalse(s.status_code > 299)
 

@@ -11,7 +11,6 @@ __     _______ ____    _   __        __         _
 "
 
 ROOTDIR="$( cd "$( dirname $( dirname "${BASH_SOURCE[0]}" ))" && pwd )"
-# echo $ROOTDIR
 cd ${ROOTDIR}
 
 echo "Initializing"
@@ -26,7 +25,8 @@ CONCUR=${CONCUR#*: }
 if [[ $E == *"*****"* ]]
 then
     # purposefully generate an error to raise terraform, etc.
-    exit 64;
+    # exit 64;
+    print '[ERROR] : TEST FAILED'
 else
     python ${ROOTDIR}/veda_worker/celeryapp.py worker --loglevel=info --concurrency=${CONCUR} -Q ${QUEUE}
 fi
