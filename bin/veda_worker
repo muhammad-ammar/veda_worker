@@ -17,7 +17,7 @@ echo "Initializing"
 E=`nosetests -s`
 
 # Get vars from yaml
-QUEUE=$(cat ${ROOTDIR}/instance_config.yaml | grep celery_queue)
+QUEUE=$(cat ${ROOTDIR}/instance_config.yaml | grep celery_receiver_queue)
 QUEUE=${QUEUE#*: }
 CONCUR=$(cat ${ROOTDIR}/instance_config.yaml | grep celery_threads)
 CONCUR=${CONCUR#*: }

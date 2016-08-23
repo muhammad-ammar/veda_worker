@@ -34,7 +34,7 @@ class TestCeleryConnect(unittest.TestCase):
 
         salient_variables = [
             'celery_app_name', 
-            'celery_queue', 
+            'celery_receiver_queue', 
             'rabbitmq_user',
             'rabbitmq_pass',
             'rabbitmq_broker'
@@ -54,7 +54,7 @@ class TestCeleryConnect(unittest.TestCase):
         """
         os.chdir(os.path.dirname(os.path.dirname(__file__)))
         worker_call = 'python celeryapp.py worker --loglevel=info --concurrency=1 -Q ' \
-            + str(self.settings['celery_queue'])
+            + str(self.settings['celery_receiver_queue'])
         a1 = subprocess.Popen(
             worker_call, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
             )
