@@ -19,6 +19,7 @@ settings = WS.settings_dict
 
 
 
+
 def veda_tokengen():
     """
     Gen and authorize a VEDA API token
@@ -45,21 +46,24 @@ def veda_tokengen():
     '''Authorize token'''
     """
     This is based around the VEDA "No Auth Server" hack
+
+    NOTE: After much screwing around, I couldn't get nginx to pass
+    the auth headers, so I'm moving to token auth
+
+    **it's shit, and needs a rewrite. see api.py
     """
     payload = { 'data' : veda_token }
     t = requests.post(
         settings['veda_auth_url'] + '/', 
         data=payload
         )
-
-    if t.status_code == 200 and t.text == 'True':
-        return veda_token
+    if t.status_code == 200: # and t.text == 'True':
+        return t.text.strip()
     else:
         ErrorObject().print_error(
             message = 'VEDA Token Authorization',
             )
         return None
-
 
 
 def val_tokengen():

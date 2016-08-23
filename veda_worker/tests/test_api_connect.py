@@ -87,16 +87,12 @@ class TestAPIConnection(unittest.TestCase):
 
         veda_token = generate_apitoken.veda_tokengen()
         self.assertFalse(veda_token == None)
-
         headers = {
-            'Authorization': 'Bearer ' + veda_token,
+            'Authorization': 'Token ' + veda_token, # + veda_token,
             'content-type': 'application/json'
             }
-        s = requests.get(self.WS.settings_dict['veda_api_url'], headers=headers, timeout=20)
-        print s.url
-        print s.text
-        print s.status_code
-        print s.headers
+        s = requests.get(self.WS.settings_dict['veda_api_url'] + '/', headers=headers, timeout=20)
+
         self.assertFalse(s.status_code == 404)
         self.assertFalse(s.status_code > 299)
 
