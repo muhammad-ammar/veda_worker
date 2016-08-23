@@ -81,7 +81,7 @@ class Video():
             'edx_id' : self.veda_id,
             }
         headers = {
-            'Authorization': 'Bearer ' + veda_token, 
+            'Authorization': 'Token ' + veda_token,
             'content-type': 'application/json'
             }
         x = requests.get(
@@ -155,7 +155,10 @@ class Encode():
             'product_spec' : self.profile_name
             }
 
-        headers = {'Authorization': 'Bearer ' + veda_token, 'content-type': 'application/json'}
+        headers = {
+            'Authorization': 'Token ' + veda_token,
+            'content-type': 'application/json'
+            }
         x = requests.get(
             '/'.join((settings['veda_api_url'], 'encodes')), 
             params=data, 

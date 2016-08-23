@@ -59,7 +59,7 @@ class UpdateAPIStatus():
             return None
 
         self.veda_headers = {
-            'Authorization': 'Bearer ' + self.veda_token, 
+            'Authorization': 'Token ' + self.veda_token, # + veda_token,
             'content-type': 'application/json'
             }
 

@@ -37,5 +37,6 @@ def cel_test():
 
 
 if __name__ == '__main__':
-    cel_test()
+    pass
+    # cel_test()
 
