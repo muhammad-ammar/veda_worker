@@ -178,7 +178,7 @@ class CommandGenerate():
             self.ffcommand.append("scale=" + str(horiz_resolution) + ":" + str(self.EncodeObject.resolution))
 
         elif aspect_fix is True:
-            if mezz_aspect_ratio > settings.TARGET_ASPECT_RATIO:
+            if mezz_aspect_ratio > settings['target_aspect_ratio']:
                 ## LETTERBOX ##
                 scalar = (int(self.EncodeObject.resolution) - (horiz_resolution / mezz_aspect_ratio)) / 2
                 
@@ -190,7 +190,7 @@ class CommandGenerate():
                 self.ffcommand.append(scalar_command)
 
 
-            if mezz_aspect_ratio < settings.TARGET_ASPECT_RATIO:
+            if mezz_aspect_ratio < settings['target_aspect_ratio']:
                 ## PILLARBOX ##
                 scalar = (horiz_resolution - (mezz_aspect_ratio * int(self.EncodeObject.resolution))) / 2
 
