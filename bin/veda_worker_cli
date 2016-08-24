@@ -7,7 +7,13 @@ import argparse
 Copyright (C) 2016 @yro | Gregory Martin
 Command Line Interface
 """
-from veda_worker import VedaWorker
+sys.path.append(
+    os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        'veda_worker'
+        )
+    )
+from veda_worker.__init__ import VedaWorker
 
 
 
