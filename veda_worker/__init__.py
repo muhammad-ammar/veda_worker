@@ -204,7 +204,7 @@ class VedaWorker():
             self.VideoObject.mezz_extension
             ))
         source_key = bucket.get_key(self.source_file)
-        print os.path.join(self.workdir, self.source_file)
+        # print os.path.join(self.workdir, self.source_file)
         if source_key == None:
             ErrorObject().print_error(
                 message = 'S3 Intake Object NOT FOUND',
