@@ -10,7 +10,7 @@ __     _______ ____    _   __        __         _
                                                               
 "
 
-ROOTDIR="$( cd "$( dirname $( dirname "${BASH_SOURCE[0]}" ))" && pwd )"
+ROOTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd ${ROOTDIR}
 
 echo "Initializing"
