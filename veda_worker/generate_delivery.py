@@ -7,6 +7,9 @@ from boto.s3.key import Key
 import shutil
 import hashlib
 
+from os.path import expanduser
+homedir = expanduser("~")
+
 """
 Gets specified Video and Encode object, and delivers file to endpoint
 from VEDA_WORK_DIR, retrieves and checks URL, and passes info to objects
@@ -33,12 +36,12 @@ class Deliverable():
         self.jobid = kwargs.get('jobid', None)
         if self.jobid is None:
             self.workdir = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                homedir,
                 'VEDA_WORKING'
                 )
         else:
             self.workdir = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                homedir,
                 'VEDA_WORKING',
                 self.jobid
                 )

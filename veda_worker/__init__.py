@@ -12,6 +12,9 @@ except:
 boto.config.set('Boto','http_socket_timeout','10') 
 from boto.s3.connection import S3Connection
 
+from os.path import expanduser
+homedir = expanduser("~")
+
 """
 Generate a serial transcode stream from 
 a VEDA instance via Celery
@@ -48,22 +51,22 @@ class VedaWorker():
         """
         if self.jobid is None:
             self.workdir = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                homedir,
                 'VEDA_WORKING'
                 )
         else:
             self.workdir = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                homedir,
                 'VEDA_WORKING',
                 self.jobid
                 )
 
         if not os.path.exists(os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                homedir,
                 'VEDA_WORKING'
                 )):
             os.mkdir(os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                homedir,
                 'VEDA_WORKING'
                 ))
 

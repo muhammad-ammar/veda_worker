@@ -2,6 +2,9 @@
 import os
 import sys
 
+from os.path import expanduser
+homedir = expanduser("~")
+
 """
 alg. to determine ffmpeg command based on video and encode information
 
@@ -37,12 +40,12 @@ class CommandGenerate():
 
         if self.jobid is None:
             self.workdir = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                homedir,
                 'VEDA_WORKING'
                 )
         else:
             self.workdir = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                homedir,
                 'VEDA_WORKING',
                 self.jobid
                 )
