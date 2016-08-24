@@ -18,7 +18,7 @@ setup(
     author_email='greg@willowgrain.io',
     license='',
     packages=['veda_worker'],
-    scripts=['bin/veda_worker'],
+    # scripts=['bin/veda_worker'],
     install_requires=[
         'boto',
         'requests',

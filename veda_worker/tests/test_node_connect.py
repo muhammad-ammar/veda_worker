@@ -63,6 +63,7 @@ class TestCeleryConnect(unittest.TestCase):
         time.sleep(10)
 
         a1.kill() ##Otherwise it's FOREVER
+        a1.kill()
         test_command = 'Connected to amqp://'+self.settings['rabbitmq_user']+\
             ':**@'+self.settings['rabbitmq_broker']+':5672//'
 
