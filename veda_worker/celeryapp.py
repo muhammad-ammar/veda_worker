@@ -45,7 +45,7 @@ def worker_task_fire(veda_id, encode_profile, jobid):
     task_command = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         'bin',
-        'veda_worker'
+        'veda_worker_cli'
         )
     task_command += ' '
     task_command += '-v ' + veda_id
