@@ -17,7 +17,7 @@ WS = WorkerSetup()
 if os.path.exists(WS.instance_yaml):
     WS.run()
 settings = WS.settings_dict
-
+print settings
 cel_app = settings['celery_app_name']
 
 def cel_Start():
