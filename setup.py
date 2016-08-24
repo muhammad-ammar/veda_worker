@@ -21,8 +21,8 @@ setup(
     # scripts=['bin/veda_worker'],
     package_data = {
         # If any package contains *.txt or *.rst files, include them:
-        '': ['*.txt', '*.yaml'],
-        }
+        '': ['*.txt', '*.rst', '*.yaml'],
+    },
     install_requires=[
         'boto',
         'requests',
