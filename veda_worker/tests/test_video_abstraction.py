@@ -14,7 +14,7 @@ from config import WorkerSetup
 from reporting import ErrorObject
 # from veda_worker.__init__ import VedaWorker
 from abstractions import Video
-from validate import ValidateVideo
+# from validate import ValidateVideo
 
 
 class TestVideoAbstraction(unittest.TestCase):
@@ -22,9 +22,9 @@ class TestVideoAbstraction(unittest.TestCase):
     def setUp(self):
         self.VideoObject = Video()
         self.VideoObject.activate()
-        self.VideoObject.valid = ValidateVideo(
-            filepath=self.VideoObject.mezz_filepath
-            ).valid
+        # self.VideoObject.valid = ValidateVideo(
+        #     filepath=self.VideoObject.mezz_filepath
+        #     ).valid
 
 
     def test_video_object(self):
