@@ -169,13 +169,7 @@ class VedaWorker():
         """
         if self.jobid is not None:
             shutil.rmtree(
-                os.path.join(
-                    os.path.dirname(os.path.dirname(
-                        os.path.abspath(__file__))
-                    ),
-                    'VEDA_WORKING',
-                    self.jobid
-                    )
+                self.workdir
                 )
 
 

@@ -17,12 +17,12 @@ WS = WorkerSetup()
 if os.path.exists(WS.instance_yaml):
     WS.run()
 settings = WS.settings_dict
-print settings
-cel_app = settings['celery_app_name']
+# print settings
+# cel_app = settings['celery_app_name']
 
 def cel_Start():
     app = Celery(
-        cel_app,
+        settings['celery_app_name'],
         broker='amqp://' + settings['rabbitmq_user'] + \
             ':' + settings['rabbitmq_pass'] + '@' + settings['rabbitmq_broker'] + ':5672//',
         backend='amqp://' + settings['rabbitmq_user'] + \
