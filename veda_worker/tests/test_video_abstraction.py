@@ -7,7 +7,9 @@ import unittest
 init end-to-end function tests
 
 """
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)
+    )))
 from config import WorkerSetup
 from reporting import ErrorObject
 # from veda_worker.__init__ import VedaWorker
