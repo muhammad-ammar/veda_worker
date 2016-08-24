@@ -53,6 +53,7 @@ class TestIntake(unittest.TestCase):
         self.VW.settings = self.settings
 
         self.VW._ENG_INTAKE()
+        print self.VW.VideoObject
         self.assertTrue(self.VW.VideoObject.valid)
         self.assertTrue(
             os.path.exists(
