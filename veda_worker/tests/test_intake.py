@@ -68,21 +68,22 @@ class TestIntake(unittest.TestCase):
 
 
     def tearDown(self):
-        if self.jobid is not None:
-            shutil.rmtree(self.VW.workdir)
-        else:
-            os.remove(
-                os.path.join(
-                    self.VW.workdir,
-                    self.VW.output_file
-                    )
-                )
-            os.remove(
-                os.path.join(
-                    self.VW.workdir,
-                    self.VW.source_file
-                    )
-                )
+        pass
+        # if self.jobid is not None:
+        #     shutil.rmtree(self.VW.workdir)
+        # else:
+        #     os.remove(
+        #         os.path.join(
+        #             self.VW.workdir,
+        #             self.VW.output_file
+        #             )
+        #         )
+        #     os.remove(
+        #         os.path.join(
+        #             self.VW.workdir,
+        #             self.VW.source_file
+        #             )
+        #         )
 
 
 def main():
