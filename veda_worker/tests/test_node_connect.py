@@ -67,6 +67,7 @@ class TestCeleryConnect(unittest.TestCase):
             ':**@'+self.settings['rabbitmq_broker']+':5672//'
 
         for line in iter(a1.stdout.readline, b''):
+            print line
             if test_command in line:
                 self.assertTrue(True)
                 return None
