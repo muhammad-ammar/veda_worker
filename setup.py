@@ -23,7 +23,8 @@ setup(
         'boto',
         'requests',
         'celery',
-        'pyyaml'
+        'pyyaml',
+        'nose'
     ],
     zip_safe=False
     )

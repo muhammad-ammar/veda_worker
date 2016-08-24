@@ -52,7 +52,7 @@ class TestCeleryConnect(unittest.TestCase):
         """
         This is yuck, but I am in a hurry
         """
-        os.chdir(os.path.dirname(os.path.dirname(__file__)))
+        os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         worker_call = 'python celeryapp.py worker --loglevel=info --concurrency=1 -Q ' \
             + str(self.settings['celery_receiver_queue'])
         a1 = subprocess.Popen(
