@@ -28,7 +28,8 @@ then
     # exit 64;
     print '[ERROR] : TEST FAILED'
 else
-    python ${ROOTDIR}/veda_worker/celeryapp.py worker --loglevel=info --concurrency=${CONCUR} -Q ${QUEUE} -n worker1.%h
+    python ${ROOTDIR}/veda_worker/celeryapp.py worker \
+        --loglevel=info --concurrency=${CONCUR} -Q ${QUEUE} -n worker.%h
 fi
 
 
