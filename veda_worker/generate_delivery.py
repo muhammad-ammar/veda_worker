@@ -173,7 +173,12 @@ class Deliverable():
         mp = b.initiate_multipart_upload(self.output_file)
 
         x = 1
-        for file in os.listdir(os.path.join(self.workdir, self.output_file.split('.')[0])):
+        for file in sorted(os.listdir(
+            os.path.join(
+                self.workdir, 
+                self.output_file.split('.')[0]
+                )
+            )):
             sys.stdout.write('%s : %s\r' % (file, 'uploading part'))
             fp = open(file, 'rb')
             mp.upload_part_from_file(fp, x)
