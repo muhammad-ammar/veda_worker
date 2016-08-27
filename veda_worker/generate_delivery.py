@@ -141,7 +141,7 @@ class Deliverable():
         """
         Split File into chunks
         """ 
-        split_command = 'split -b5m -a5' ##5 part names of 5mb
+        split_command = 'split -b10m -a5' ##5 part names of 5mb
         sys.stdout.write('%s : %s\n' % (self.output_file, 'Generating Multipart'))
         os.system(' '.join((split_command, os.path.join(self.workdir, self.output_file))))
         sys.stdout.flush()
