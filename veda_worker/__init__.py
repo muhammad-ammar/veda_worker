@@ -158,9 +158,11 @@ class VedaWorker():
             """
             Integrate with main
             """
-            final_name = self.output_file
+            veda_id = self.veda_id
+            encode_profile = self.encode_profile
+
             celeryapp.deliverable_route.apply_async(
-                (final_name, ),
+                (veda_id, encode_profile),
                 queue='transcode_stat'
                 )
 
