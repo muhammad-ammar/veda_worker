@@ -158,20 +158,20 @@ class VedaWorker():
             """
             Integrate with main
             """
-            # veda_id = self.veda_id
-            # encode_profile = self.encode_profile
-            # celeryapp.deliverable_route.apply_async(
-            #     (veda_id, encode_profile),
-            #     queue='transcode_stat'
-            #     )
-            """
-            LEGACY
-            """
-            final_name = self.output_file
+            veda_id = self.veda_id
+            encode_profile = self.encode_profile
             celeryapp.deliverable_route.apply_async(
-                (final_name, ),
+                (veda_id, encode_profile),
                 queue='transcode_stat'
                 )
+            # """
+            # LEGACY
+            # """
+            # final_name = self.output_file
+            # celeryapp.deliverable_route.apply_async(
+                # (final_name, ),
+                # queue='transcode_stat'
+                # )
 
 
         """
