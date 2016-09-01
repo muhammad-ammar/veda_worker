@@ -164,15 +164,6 @@ class VedaWorker():
                 (veda_id, encode_profile),
                 queue='transcode_stat'
                 )
-            # """
-            # LEGACY
-            # """
-            # final_name = self.output_file
-            # celeryapp.deliverable_route.apply_async(
-                # (final_name, ),
-                # queue='transcode_stat'
-                # )
-
 
         """
         Clean up workdir
