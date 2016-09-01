@@ -178,6 +178,7 @@ class VedaWorker():
         Clean up workdir
         """
         if self.jobid is not None:
+            print 'CleanDir'
             shutil.rmtree(
                 self.workdir
                 )

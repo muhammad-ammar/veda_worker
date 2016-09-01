@@ -56,6 +56,8 @@ def worker_task_fire(veda_id, encode_profile, jobid):
     task_command += '-j ' + jobid
 
     os.system(task_command)
+    print 'Test'
+    # rm 
 
 
 @app.task(name='supervisor_deliver')
