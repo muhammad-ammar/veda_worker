@@ -174,7 +174,6 @@ class Encode():
 
         for e in enc_dict['results']:
             if e['product_spec'] == self.profile_name and e['profile_active'] is True:
-                print self.profile_name
                 self.resolution = e['encode_resolution']
                 self.rate_factor = e['encode_bitdepth']
                 self.filetype = e['encode_filetype']

@@ -101,9 +101,6 @@ class VedaWorker():
 
     def run(self):
 
-        # # print 'This is a test'
-        # print afart
-
         WS = WorkerSetup()
         if self.setup is True:
             WS.setup = True
@@ -177,7 +174,6 @@ class VedaWorker():
         Clean up workdir
         """
         if self.jobid is not None:
-            print 'CleanDir'
             shutil.rmtree(
                 self.workdir
                 )

@@ -69,7 +69,6 @@ def worker_task_fire(veda_id, encode_profile, jobid):
             jobid
             )
         ):
-        print 'CleanTheDir'
         shutil.rmtree(
             os.path.join(
                 homedir,
@@ -77,31 +76,6 @@ def worker_task_fire(veda_id, encode_profile, jobid):
                 jobid
                 )
             )
-
-
-
-    print 'Test'
-    # rm 
-
-
-# @app.task(name='worker_test')
-# def worker_task_fire(veda_id, encode_profile, jobid):
-#     task_command = os.path.join(
-#         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-#         'bin',
-#         'veda_worker_cli'
-#         )
-#     task_command += ' '
-#     task_command += '-v ' + veda_id
-#     task_command += ' '
-#     task_command += '-e ' + encode_profile
-#     task_command += ' '
-#     task_command += '-j ' + jobid
-
-#     os.system(task_command)
-#     print 'Test'
-
-
 
 
 @app.task(name='supervisor_deliver')

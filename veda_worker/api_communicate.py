@@ -144,8 +144,6 @@ class UpdateAPIStatus():
                 data=json.dumps(video_data)
                 )
             if w.status_code != 200:
-                print w.status_code
-                print w.text
 
                 ErrorObject().print_error(
                     message = 'VEDA API Fail: File \'GET\' Failure, no objects'
