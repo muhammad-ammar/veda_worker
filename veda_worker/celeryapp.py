@@ -61,7 +61,7 @@ def worker_task_fire(veda_id, encode_profile, jobid):
 
 
 @app.task(name='supervisor_deliver')
-def deliverable_route(final_name):
+def deliverable_route(veda_id, encode_profile):
     """
     Just register this task with big veda
     """
