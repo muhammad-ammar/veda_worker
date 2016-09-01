@@ -37,12 +37,12 @@ class Deliverable():
         if self.jobid is None:
             self.workdir = os.path.join(
                 homedir,
-                'VEDA_WORKING'
+                'ENCODE_WORKDIR'
                 )
         else:
             self.workdir = os.path.join(
                 homedir,
-                'VEDA_WORKING',
+                'ENCODE_WORKDIR',
                 self.jobid
                 )
         #---#

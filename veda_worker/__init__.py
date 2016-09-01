@@ -52,22 +52,22 @@ class VedaWorker():
         if self.jobid is None:
             self.workdir = os.path.join(
                 homedir,
-                'VEDA_WORKING'
+                'ENCODE_WORKDIR'
                 )
         else:
             self.workdir = os.path.join(
                 homedir,
-                'VEDA_WORKING',
+                'ENCODE_WORKDIR',
                 self.jobid
                 )
 
         if not os.path.exists(os.path.join(
                 homedir,
-                'VEDA_WORKING'
+                'ENCODE_WORKDIR'
                 )):
             os.mkdir(os.path.join(
                 homedir,
-                'VEDA_WORKING'
+                'ENCODE_WORKDIR'
                 ))
 
         """#---#"""
@@ -100,6 +100,10 @@ class VedaWorker():
 
 
     def run(self):
+
+        # # print 'This is a test'
+        # print afart
+
         WS = WorkerSetup()
         if self.setup is True:
             WS.setup = True
@@ -122,6 +126,10 @@ class VedaWorker():
                 message = 'Invalid Video / VEDA Data'
                 )
             return None
+
+        if not os.path.exists(self.workdir):
+            os.mkdir(self.workdir)
+
 
         """
         Pipeline Steps :
@@ -185,8 +193,6 @@ class VedaWorker():
                 )
             return None
 
-        if not os.path.exists(self.workdir):
-            os.mkdir(self.workdir)
 
         conn = S3Connection(
             self.settings['aws_access_key'], 
@@ -206,7 +212,7 @@ class VedaWorker():
             self.VideoObject.mezz_extension
             ))
         source_key = bucket.get_key(self.source_file)
-        # print os.path.join(self.workdir, self.source_file)
+
         if source_key == None:
             ErrorObject().print_error(
                 message = 'S3 Intake Object NOT FOUND',
