@@ -10,3 +10,7 @@ ENCODE_WORKDIR/
 instance_config2.yaml
 
 .DS_Store
+
+*.ini
+
+
