@@ -187,6 +187,7 @@ class VedaWorker():
             ErrorObject().print_error(
                 message = 'Invalid Video'
                 )
+
             return None
 
 

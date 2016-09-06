@@ -117,8 +117,9 @@ class Video():
                 self.veda_id + '.' + self.mezz_extension
                 ))
 
-            if v['video_trans_status'] != 'Corrupt File':
-                self.valid = True
+            self.valid = True
+            # if v['video_trans_status'] != 'Corrupt File':
+            #     self.valid = True
 
 
 
