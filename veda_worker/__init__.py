@@ -1,3 +1,8 @@
+"""
+Generate a serial transcode stream from
+a VEDA instance via Celery
+
+"""
 
 import os
 import sys
@@ -5,21 +10,18 @@ import nose
 import subprocess
 import shutil
 import boto
+
+from boto.s3.connection import S3Connection
+from vhls import VHLS
+from os.path import expanduser
+
+homedir = expanduser("~")
 try:
     boto.config.add_section('Boto')
 except:
     pass
-boto.config.set('Boto','http_socket_timeout','10') 
-from boto.s3.connection import S3Connection
+boto.config.set('Boto','http_socket_timeout','10')
 
-from os.path import expanduser
-homedir = expanduser("~")
-
-"""
-Generate a serial transcode stream from 
-a VEDA instance via Celery
-
-"""
 import celeryapp
 from global_vars import *
 from reporting import ErrorObject, Output
@@ -29,7 +31,6 @@ from validate import ValidateVideo
 from api_communicate import UpdateAPIStatus
 from generate_encode import CommandGenerate
 from generate_delivery import Deliverable
-
 
 
 class VedaWorker():
@@ -150,14 +151,13 @@ class VedaWorker():
             return None
 
         self._UPDATE_API()
-        self._GENERATE_ENCODE()
-        if self.ffcommand is None:
-            return None
 
-        self._EXECUTE_ENCODE()
-        self._VALIDATE_ENCODE()
-        if self.encoded is True:
-            self._DELIVER_FILE()
+        if self.encode_profile == 'hls':
+            self._HLSPipeline()
+        else:
+            self._StaticPipeline()
+
+        print self.endpoint_url
 
         if self.endpoint_url is not None:
             """
@@ -169,7 +169,6 @@ class VedaWorker():
                 (veda_id, encode_profile),
                 queue='transcode_stat'
                 )
-
         """
         Clean up workdir
         """
@@ -177,6 +176,43 @@ class VedaWorker():
             shutil.rmtree(
                 self.workdir
                 )
+
+
+    def _StaticPipeline(self):
+        self._GENERATE_ENCODE()
+        if self.ffcommand is None:
+            print 'No Command'
+            return None
+
+        self._EXECUTE_ENCODE()
+        self._VALIDATE_ENCODE()
+        if self.encoded is True:
+            self._DELIVER_FILE()
+
+
+    def _HLSPipeline(self):
+        """
+        Activate HLS, use hls lib to upload
+
+        """
+        if not os.path.exists(os.path.join(self.workdir, self.source_file)):
+            ErrorObject().print_error(
+                message = 'Source File (local) NOT FOUND',
+                )
+            return None
+        os.chdir(self.workdir)
+
+        V1 = VHLS(
+            mezz_file=os.path.join(self.workdir, self.source_file),
+            DELIVER_BUCKET=self.settings['edx_s3_endpoint_bucket'],
+            ACCESS_KEY_ID=self.settings['edx_access_key_id'],
+            SECRET_ACCESS_KEY = self.settings['edx_secret_access_key']
+        )
+
+        if V1.complete is True:
+            self.endpoint_url = V1.manifest_url
+        else:
+            return None
 
 
     def _ENG_INTAKE(self):
@@ -249,6 +285,11 @@ class VedaWorker():
             )
         E.pull_data()
         if E.filetype is None: return None
+
+        """
+        Implement HLS Here
+
+        """
 
         self.ffcommand = CommandGenerate(
             VideoObject = self.VideoObject,
@@ -329,4 +370,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
-

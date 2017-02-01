@@ -13,4 +13,8 @@ instance_config2.yaml
 
 *.ini
 
+.idea/
 
+build/
+
+veda_worker.egg-info/
