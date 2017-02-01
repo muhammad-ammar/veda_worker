@@ -50,14 +50,6 @@ class CommandGenerate():
                 self.jobid
                 )
 
-        # self.workdir = os.path.join(
-        #     os.path.dirname(
-        #         os.path.dirname(os.path.abspath(__file__))
-        #         ),
-        #     'VEDA_WORKING'
-        #     )
-
-
     def generate(self):
         """
         Generate command for ffmpeg lib
