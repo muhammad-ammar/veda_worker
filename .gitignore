@@ -18,3 +18,5 @@ instance_config2.yaml
 build/
 
 veda_worker.egg-info/
+
+dist/
