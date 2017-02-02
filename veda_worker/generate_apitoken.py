@@ -4,7 +4,7 @@ import sys
 import requests
 import ast
 """Disable insecure warning for requests lib"""
-# requests.packages.urllib3.disable_warnings()
+requests.packages.urllib3.disable_warnings()
 
 """
 This is a simple set of token generators for attached APIs

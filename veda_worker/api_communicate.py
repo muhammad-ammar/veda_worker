@@ -19,7 +19,8 @@ WS = WorkerSetup()
 if os.path.exists(WS.instance_yaml):
     WS.run()
 settings = WS.settings_dict
-
+# Disable warning
+requests.packages.urllib3.disable_warnings()
 
 class UpdateAPIStatus():
 

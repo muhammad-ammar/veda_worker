@@ -7,7 +7,7 @@ import json
 import uuid
 
 """Disable insecure warning for requests lib"""
-# requests.packages.urllib3.disable_warnings()
+requests.packages.urllib3.disable_warnings()
 
 """
 Abstractions / A simple way for openVEDA to remember!

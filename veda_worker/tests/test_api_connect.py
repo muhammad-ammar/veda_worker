@@ -10,6 +10,8 @@ This is an API connection test
 set to pass if instance_config.yaml is missing
 
 """
+# Disable warning
+requests.packages.urllib3.disable_warnings()
 
 sys.path.append(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)

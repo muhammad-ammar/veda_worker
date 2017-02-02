@@ -13,8 +13,8 @@ __     _______ ____    _   __        __         _
 ROOTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd ${ROOTDIR}
 
-echo "Initializing"
-E=`nosetests -s`
+# echo "Initializing"
+# E=`nosetests -s`
 
 # Get vars from yaml
 QUEUE=$(cat ${ROOTDIR}/instance_config.yaml | grep celery_receiver_queue)
@@ -24,14 +24,14 @@ CONCUR=${CONCUR#*: }
 echo $QUEUE
 echo $CONCUR
 
-if [[ $E == *"*****"* ]]
-then
+# if [[ $E == *"*****"* ]]
+# then
     # purposefully generate an error to raise terraform, etc.
     # exit 64;
-    print '[ERROR] : TEST FAILED'
-else
+  #   print '[ERROR] : TEST FAILED'
+# else
 NEW_RELIC_CONFIG_FILE=${ROOTDIR}/veda_worker_newrelic.ini newrelic-admin run-program python ${ROOTDIR}/veda_worker/celeryapp.py worker \
         --loglevel=info --concurrency=${CONCUR} -Q ${QUEUE} -n worker.%h
-fi
+# fi
 
 
