@@ -33,10 +33,11 @@ def cel_Start():
         )
 
     app.conf.update(
-        BROKER_CONNECTION_TIMEOUT = 60,
-        CELERY_IGNORE_RESULT = True,
-        CELERY_TASK_RESULT_EXPIRES = 10,
-        CELERYD_PREFETCH_MULTIPLIER = 1
+        BROKER_CONNECTION_TIMEOUT=60,
+        CELERY_IGNORE_RESULT=True,
+        CELERY_TASK_RESULT_EXPIRES=10,
+        CELERYD_PREFETCH_MULTIPLIER=1,
+        CELERY_ACCEPT_CONTENT=['pickle', 'json', 'msgpack', 'yaml']
         )
 
     return app
