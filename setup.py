@@ -24,11 +24,12 @@ setup(
         '': ['*.txt', '*.rst', '*.yaml'],
     },
     install_requires=[
-        'boto',
-        'requests',
-        'celery',
-        'pyyaml',
-        'nose'
+        'boto==2.39.0',
+        'requests==2.10.0',
+        'celery==3.1.18',
+        'pyyaml==3.11',
+        'nose==1.3.3',
+        'newrelic'
     ],
     zip_safe=False
     )
