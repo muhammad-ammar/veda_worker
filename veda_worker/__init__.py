@@ -31,6 +31,7 @@ from validate import ValidateVideo
 from api_communicate import UpdateAPIStatus
 from generate_encode import CommandGenerate
 from generate_delivery import Deliverable
+from veda_worker.video_images import VideoImages
 
 
 class VedaWorker():
@@ -151,6 +152,14 @@ class VedaWorker():
             return None
 
         self._UPDATE_API()
+
+        # generate video images command and update S3 and edxval
+        VideoImages(
+            video_object=self.VideoObject,
+            work_dir=self.workdir,
+            source_file=self.source_file,
+            jobid=self.jobid
+        ).create_and_update()
 
         if self.encode_profile == 'hls':
             self._HLSPipeline()

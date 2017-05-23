@@ -13,6 +13,11 @@ aws_storage_bucket:
 multi_upload_barrier: 2000000000
 boto_timeout: 60
 
+## AWS Storage config for video images
+aws_video_images_access_key:
+aws_video_images_secret_key:
+aws_video_images_bucket:
+aws_video_images_prefix:
 
 ## VAL API Auth
 val_api_url: 
@@ -21,6 +26,7 @@ val_password:
 val_secret_key: 
 val_token_url: 
 val_username: 
+val_video_images_url:
 
 ## VEDA API Auth
 veda_api_url: 
