@@ -32,11 +32,12 @@ class VideoImages(object):
     Video Images related functionality.
     """
 
-    def __init__(self, video_object, work_dir, source_file):
+    def __init__(self, video_object, work_dir, source_file, **kwargs):
         self.video_object = video_object
         self.work_dir = work_dir
         self.source_file = source_file
         self.source_video_file = os.path.join(self.work_dir, self.source_file)
+        self.jobid = kwargs.get('jobid', None)
 
     def create_and_update(self):
         """
@@ -110,8 +111,8 @@ class VideoImages(object):
         for generated_image in generated_images:
             upload_key = Key(bucket)
             upload_key.key = '{prefix}/{generated_image}'.format(
-                prefix=SETTINGS['aws_video_images_prefix'],
-                generated_image=generated_image
+                prefix=SETTINGS['aws_video_images_prefix'] if SETTINGS['aws_video_images_prefix'] is not None else '',
+                generated_image=os.path.basename(generated_image)
             )
             image_keys.append(upload_key.key)
             upload_key.set_contents_from_filename(generated_image)

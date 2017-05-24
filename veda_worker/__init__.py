@@ -154,14 +154,15 @@ class VedaWorker():
         self._UPDATE_API()
 
         # generate video images command and update S3 and edxval
-        VideoImages(
-            video_object=self.VideoObject,
-            work_dir=self.workdir,
-            source_file=self.source_file,
-            jobid=self.jobid
-        ).create_and_update()
-
+        # run against 'hls' encode only
         if self.encode_profile == 'hls':
+            VideoImages(
+                video_object=self.VideoObject,
+                work_dir=self.workdir,
+                source_file=self.source_file,
+                jobid=self.jobid
+            ).create_and_update()
+            # Run HLS encode
             self._HLSPipeline()
         else:
             self._StaticPipeline()
@@ -375,7 +376,6 @@ class VedaWorker():
 
 def main():
     pass
-
 
 if __name__ == '__main__':
     sys.exit(main())
