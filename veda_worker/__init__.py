@@ -31,6 +31,7 @@ from validate import ValidateVideo
 from api_communicate import UpdateAPIStatus
 from generate_encode import CommandGenerate
 from generate_delivery import Deliverable
+from veda_worker.video_images import VideoImages
 
 
 class VedaWorker():
@@ -152,7 +153,16 @@ class VedaWorker():
 
         self._UPDATE_API()
 
+        # generate video images command and update S3 and edxval
+        # run against 'hls' encode only
         if self.encode_profile == 'hls':
+            VideoImages(
+                video_object=self.VideoObject,
+                work_dir=self.workdir,
+                source_file=self.source_file,
+                jobid=self.jobid
+            ).create_and_update()
+            # Run HLS encode
             self._HLSPipeline()
         else:
             self._StaticPipeline()
@@ -366,7 +376,6 @@ class VedaWorker():
 
 def main():
     pass
-
 
 if __name__ == '__main__':
     sys.exit(main())
