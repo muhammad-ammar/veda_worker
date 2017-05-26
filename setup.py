@@ -1,7 +1,6 @@
 
-import os
 from setuptools import setup
-from setuptools.command.install import install
+
 
 def readme():
     with open('README.rst') as f:
@@ -19,7 +18,7 @@ setup(
     license='',
     packages=['veda_worker'],
     # scripts=['bin/veda_worker'],
-    package_data = {
+    package_data={
         # If any package contains *.txt or *.rst files, include them:
         '': ['*.txt', '*.rst', '*.yaml'],
     },
@@ -32,4 +31,4 @@ setup(
         'newrelic'
     ],
     zip_safe=False
-    )
+)
