@@ -1,21 +1,17 @@
 
-import os
-import sys
-import unittest
-from boto.s3.connection import S3Connection
 
+from boto.s3.connection import S3Connection
+import os
+import unittest
+import sys
+
+from veda_worker.config import WorkerSetup
 
 """
 Test for deliverable connection
 set to pass if instance_config.yaml is missing
 
 """
-
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    )
-from reporting import ErrorObject
-from config import WorkerSetup
 
 
 class TestAssetConnection(unittest.TestCase):
@@ -53,7 +49,6 @@ class TestAssetConnection(unittest.TestCase):
         for s in salient_variables:
             self.assertTrue(len(self.settings[s]) > 0)
 
-
     def test_storage_connection(self):
         if not os.path.exists(self.WS.instance_yaml):
             return None
@@ -67,7 +62,6 @@ class TestAssetConnection(unittest.TestCase):
             self.assertTrue(True)
         except:
             self.assertFalse(True)
-
 
     def test_delivery_connection(self):
         if not os.path.exists(self.WS.instance_yaml):

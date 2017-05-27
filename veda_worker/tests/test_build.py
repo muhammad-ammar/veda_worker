@@ -9,6 +9,7 @@ build test
 
 """
 
+
 class BuildTest(unittest.TestCase):
 
     def setUp(self):
@@ -18,7 +19,6 @@ class BuildTest(unittest.TestCase):
                 ),
             'default_config.yaml'
             )
-
 
     def test_defaults(self):
 
@@ -35,4 +35,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
-

@@ -3,7 +3,9 @@ import os
 import sys
 import unittest
 import requests
-import ast
+
+from veda_worker.config import WorkerSetup
+from veda_worker.generate_apitoken import val_tokengen, veda_tokengen
 
 """
 This is an API connection test
@@ -13,13 +15,6 @@ set to pass if instance_config.yaml is missing
 # Disable warning
 requests.packages.urllib3.disable_warnings()
 
-sys.path.append(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__)
-    )))
-import generate_apitoken
-from config import WorkerSetup
-from reporting import ErrorObject
-
 
 class TestAPIConnection(unittest.TestCase):
 
@@ -28,7 +23,6 @@ class TestAPIConnection(unittest.TestCase):
         if os.path.exists(self.WS.instance_yaml):
             self.WS.run()
         self.settings = self.WS.settings_dict
-
 
     def test_val_setup(self):
         if not os.path.exists(self.WS.instance_yaml):
@@ -46,7 +40,6 @@ class TestAPIConnection(unittest.TestCase):
         for s in salient_variables:
             self.assertTrue(len(self.WS.settings_dict[s]) > 0)
 
-
     def test_veda_setup(self):
         if not os.path.exists(self.WS.instance_yaml):
             self.assertTrue(True)
@@ -62,15 +55,13 @@ class TestAPIConnection(unittest.TestCase):
         for s in salient_variables:
             self.assertTrue(len(self.WS.settings_dict[s]) > 0)
 
-
-
     def test_val_connection(self):
         if not os.path.exists(self.WS.instance_yaml):
             self.assertTrue(True)
             return None
 
-        val_token = generate_apitoken.val_tokengen()
-        self.assertFalse(val_token == None)
+        val_token = val_tokengen()
+        self.assertFalse(val_token is None)
 
         headers = {
             'Authorization': 'Bearer ' + val_token, 
@@ -81,14 +72,13 @@ class TestAPIConnection(unittest.TestCase):
         self.assertFalse(s.status_code == 404)
         self.assertFalse(s.status_code > 299)
 
-
     def test_veda_connection(self):
         if not os.path.exists(self.WS.instance_yaml):
             self.assertTrue(True)
             return None
 
-        veda_token = generate_apitoken.veda_tokengen()
-        self.assertFalse(veda_token == None)
+        veda_token = veda_tokengen()
+        self.assertFalse(veda_token is None)
         headers = {
             'Authorization': 'Token ' + veda_token, # + veda_token,
             'content-type': 'application/json'
@@ -99,13 +89,9 @@ class TestAPIConnection(unittest.TestCase):
         self.assertFalse(s.status_code > 299)
 
 
-
-
 def main():
     unittest.main()
 
+
 if __name__ == '__main__':
     sys.exit(main())
-
-
-
