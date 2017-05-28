@@ -1,9 +1,12 @@
 
 import os
+from os.path import expanduser
 import sys
 
-from os.path import expanduser
-homedir = expanduser("~")
+from global_vars import *
+from reporting import ErrorObject, Output
+from config import WorkerSetup
+
 
 """
 alg. to determine ffmpeg command based on video and encode information
@@ -11,26 +14,23 @@ alg. to determine ffmpeg command based on video and encode information
 -resolution (frame size)
 -CRF (increase for lower bitrate videos)
 
-This is built to generate commands for a very small number of encodes and is not a substitute 
-for knowledgable use of ffmpeg if one's intention is to broaden use beyond the very limited set of 
+This is built to generate commands for a very small number of encodes and is not a substitute
+for knowledgable use of ffmpeg if one's intention is to broaden use beyond the very limited set of
 endpoints the edX platform provides
 
 input, via two classes, encode and video, which can be generated either via the node independently
 or via celery connection to VEDA (VEDA will send video_id and encode_profile via Celery queue)
 
 """
-from global_vars import *
-from reporting import ErrorObject, Output
-from config import WorkerSetup
+homedir = expanduser("~")
+
 WS = WorkerSetup()
 if os.path.exists(WS.instance_yaml):
     WS.run()
 settings = WS.settings_dict
 
 
-
-
-class CommandGenerate():
+class CommandGenerate:
 
     def __init__(self, VideoObject, EncodeObject, **kwargs):
         self.VideoObject = VideoObject
@@ -42,30 +42,30 @@ class CommandGenerate():
             self.workdir = os.path.join(
                 homedir,
                 'ENCODE_WORKDIR'
-                )
+            )
         else:
             self.workdir = os.path.join(
                 homedir,
                 'ENCODE_WORKDIR',
                 self.jobid
-                )
+            )
 
     def generate(self):
         """
         Generate command for ffmpeg lib
         """
-        if self.VideoObject == None:
+        if self.VideoObject is None:
             ErrorObject().print_error(
-                message = 'Command Gen Fail: No Video Object'
-                )
-
+                message='Command Gen Fail: No Video Object'
+            )
             return None
-        if self.EncodeObject == None:
+
+        if self.EncodeObject is None:
             ErrorObject().print_error(
-                message = 'Command Gen Fail: No Encode Object'
-                )
-
+                message='Command Gen Fail: No Encode Object'
+            )
             return None
+
         """
         These build the command, and, unfortunately, must be in order
         """
@@ -80,7 +80,6 @@ class CommandGenerate():
         self._destination()
         return " ".join(self.ffcommand)
 
-
     def _call(self):
         """
         Begin Command Proper
@@ -90,25 +89,25 @@ class CommandGenerate():
         self.ffcommand.append("-y")
         self.ffcommand.append("-i")
         self.ffcommand.append(os.path.join(
-            self.workdir, 
+            self.workdir,
             '.'.join((
-                self.VideoObject.veda_id, 
+                self.VideoObject.veda_id,
                 self.VideoObject.mezz_extension
-                ))
             ))
+        ))
 
         if self.EncodeObject.filetype != 'mp3':
             self.ffcommand.append("-c:v")
         else:
             self.ffcommand.append("-c:a")
 
-
     def _codec(self):
         """
-        This, as an addendum to the relatively simple deliverables to edX, is only intended to 
+        This, as an addendum to the relatively simple deliverables to edX, is only intended to
         work with a few filetypes (see config)
         """
-        if self.ffcommand == None: return None
+        if self.ffcommand is None:
+            return None
 
         if self.EncodeObject.filetype == "mp4":
             self.ffcommand.append("libx264")
@@ -117,15 +116,17 @@ class CommandGenerate():
         elif self.EncodeObject.filetype == "mp3":
             self.ffcommand.append("libmp3lame")
 
-
     def _scalar(self):
-        if self.ffcommand == None: return None
-        if ENFORCE_TARGET_ASPECT is False: return None
-        if self.EncodeObject.filetype == 'mp3': return None
+        if self.ffcommand is None:
+            return None
+        if ENFORCE_TARGET_ASPECT is False:
+            return None
+        if self.EncodeObject.filetype == 'mp3':
+            return None
 
         """
         Padding (if requested and needed)
-        letter/pillarboxing Command example: -vf pad=720:480:0:38 
+        letter/pillarboxing Command example: -vf pad=720:480:0:38
         (target reso, x, y)
         """
         horiz_resolution = int(float(self.EncodeObject.resolution) * TARGET_ASPECT_RATIO)
@@ -143,14 +144,13 @@ class CommandGenerate():
             mezz_vert_resolution = None
             mezz_horiz_resolution = None
         """Aspect Ratio as float"""
-        if mezz_vert_resolution != None and mezz_horiz_resolution != None:
+        if mezz_vert_resolution is not None and mezz_horiz_resolution is not None:
             mezz_aspect_ratio = float(mezz_horiz_resolution) / float(mezz_vert_resolution)
         else:
             mezz_aspect_ratio = None
 
         """Append commands"""
-        ##let's make this a little cleaner than it was
-        if mezz_aspect_ratio == None or float(mezz_aspect_ratio) == float(TARGET_ASPECT_RATIO):
+        if mezz_aspect_ratio is not None or float(mezz_aspect_ratio) == float(TARGET_ASPECT_RATIO):
             aspect_fix = False
         elif mezz_vert_resolution == 1080 and mezz_horiz_resolution == 1440:
             aspect_fix = False
@@ -171,28 +171,26 @@ class CommandGenerate():
 
         elif aspect_fix is True:
             if mezz_aspect_ratio > settings['target_aspect_ratio']:
-                ## LETTERBOX ##
+                # LETTERBOX
                 scalar = (int(self.EncodeObject.resolution) - (horiz_resolution / mezz_aspect_ratio)) / 2
-                
+
                 self.ffcommand.append("-vf")
                 scalar_command = "scale=" + str(horiz_resolution)
                 scalar_command += ":" + str(int(self.EncodeObject.resolution) - (int(scalar) * 2))
-                scalar_command += ",pad=" + str(horiz_resolution) + ":" + str(self.EncodeObject.resolution) 
+                scalar_command += ",pad=" + str(horiz_resolution) + ":" + str(self.EncodeObject.resolution)
                 scalar_command += ":0:" + str(int(scalar))
                 self.ffcommand.append(scalar_command)
 
-
             if mezz_aspect_ratio < settings['target_aspect_ratio']:
-                ## PILLARBOX ##
+                # PILLARBOX
                 scalar = (horiz_resolution - (mezz_aspect_ratio * int(self.EncodeObject.resolution))) / 2
 
                 self.ffcommand.append("-vf")
-                scalar_command = "scale=" + str(horiz_resolution - (int(scalar) * 2)) 
+                scalar_command = "scale=" + str(horiz_resolution - (int(scalar) * 2))
                 scalar_command += ":" + str(self.EncodeObject.resolution)
-                scalar_command += ",pad=" + str(horiz_resolution) + ":" + str(self.EncodeObject.resolution) 
+                scalar_command += ",pad=" + str(horiz_resolution) + ":" + str(self.EncodeObject.resolution)
                 scalar_command += ":" + str(int(scalar)) + ":0"
                 self.ffcommand.append(scalar_command)
-
 
     def _bitdepth(self):
         """
@@ -200,10 +198,8 @@ class CommandGenerate():
         some experimenting is needed - a lossless solution
         to low bitdepth videos can be in the offing, but for now,
         stock
-        
         """
         return None
-
 
     def _passes(self):
         """
@@ -240,21 +236,19 @@ class CommandGenerate():
             self.ffcommand.append(str(self.EncodeObject.rate_factor) + "k")
 
         """
-        for a possible state of two-pass encodes : 
+        for a possible two-pass encodes state:
         need: two-pass global bool
             ffmpeg -y -i -pass 1 -c:a libfdk_aac -b:a 128k -passlogfile ${LOGFILE} \
             -f mp4 /dev/null && ${FFCOMMAND} -pass 2 -c:a libfdk_aac -b:a 128k ${DESTINATION}
         """
 
-
     def _destination(self):
-        
         if self.EncodeObject.filetype == "mp4":
             self.ffcommand.append("-movflags")
             self.ffcommand.append("faststart")
 
         elif self.EncodeObject.filetype == "webm":
-            """This is WEBM = 1 Pass"""
+            # This is WEBM = 1 Pass
             self.ffcommand.append("-c:a")
             self.ffcommand.append("libvorbis")
 
@@ -262,9 +256,8 @@ class CommandGenerate():
             os.path.join(
                 self.workdir,
                 self.VideoObject.veda_id + "_" + self.EncodeObject.encode_suffix + "." + self.EncodeObject.filetype
-                )
             )
-
+        )
 
 
 def main():
