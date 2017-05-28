@@ -1,6 +1,7 @@
 
-import requests
 import json
+import os
+import requests
 
 from reporting import ErrorObject, Output
 import generate_apitoken
