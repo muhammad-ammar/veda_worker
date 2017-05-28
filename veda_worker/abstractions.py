@@ -1,10 +1,11 @@
 
-import os
-import subprocess
 import requests
-import ast
 import json
-import uuid
+
+from reporting import ErrorObject, Output
+import generate_apitoken
+from config import WorkerSetup
+from global_vars import *
 
 """Disable insecure warning for requests lib"""
 requests.packages.urllib3.disable_warnings()
@@ -17,10 +18,6 @@ AbstractionLayer Object (acts as master abstraction)
     -[ EncodeObject, EncodeObject ]
 
 """
-from reporting import ErrorObject, Output
-import generate_apitoken 
-from config import WorkerSetup
-from global_vars import *
 
 WS = WorkerSetup()
 if os.path.exists(WS.instance_yaml):
@@ -28,8 +25,7 @@ if os.path.exists(WS.instance_yaml):
 settings = WS.settings_dict
 
 
-
-class Video():
+class Video:
     """
     This is a simple video class for easy portability between stages in the workflow
     Includes simple tooling for QA checks and a basic API information importer
@@ -37,8 +33,6 @@ class Video():
     def __init__(self, veda_id=None, **kwargs):
 
         self.veda_id = veda_id
-
-        #-Gathered Data-#
         self.valid = False
         self.vid_pk = None
         self.class_id = None
@@ -50,16 +44,15 @@ class Video():
         self.mezz_resolution = None
         self.mezz_duration = None
         self.mezz_filepath = None
-        # ** optional
+        # optional
         self.course_url = kwargs.get('course_url', [])
-
 
     def activate(self):
 
-        if self.veda_id != None and len(settings['veda_api_url']) == 0:
+        if self.veda_id is not None and len(settings['veda_api_url']) == 0:
             ErrorObject().print_error(
-                message = 'VEDA API Config Incorrect, run test to debug'
-                )
+                message='VEDA API Config Incorrect, run test to debug'
+            )
             return None
         """
         test case
@@ -75,23 +68,25 @@ class Video():
         Generated Token
         """
         veda_token = generate_apitoken.veda_tokengen()
-        if veda_token == None: return None
+        if veda_token is None:
+            return None
 
         data = {
-            'edx_id' : self.veda_id,
-            }
+            'edx_id': self.veda_id,
+        }
         headers = {
             'Authorization': 'Token ' + veda_token,
             'content-type': 'application/json'
-            }
+        }
         x = requests.get(
             '/'.join((settings['veda_api_url'], 'videos', '')),
-            params=data, 
+            params=data,
             headers=headers
-            )
+        )
 
-        vid_dict = json.loads(x.text)   
-        if len(vid_dict['results']) == 0: return None
+        vid_dict = json.loads(x.text)
+        if len(vid_dict['results']) == 0:
+            return None
 
         for v in vid_dict['results']:
             """
@@ -105,31 +100,27 @@ class Video():
             self.mezz_bitrate = v['video_orig_bitrate']
             self.mezz_title = v['client_title']
             self.mezz_filesize = v['video_orig_filesize']
-            '''Do some field cleaning in case of SAR/DAR legacy errors'''
+            # Do some field cleaning in case of SAR/DAR legacy errors
             mezz_resolution = v['video_orig_resolution'].strip().split(' ')[0]
             self.mezz_resolution = mezz_resolution
             '''Clean from unicode (00:00:00.53)'''
             uni_duration = v['video_orig_duration']
             self.mezz_duration = Output._seconds_from_string(uni_duration)
             self.mezz_filepath = '/'.join((
-                'https://s3.amazonaws.com', 
+                'https://s3.amazonaws.com',
                 settings['aws_storage_bucket'],
                 self.veda_id + '.' + self.mezz_extension
-                ))
-
+            ))
             self.valid = True
-            # if v['video_trans_status'] != 'Corrupt File':
-            #     self.valid = True
 
 
-
-class Encode():
+class Encode:
     """
     A basic class for easy programatic access to the diff salient variables
     """
-    def __init__(self, VideoObject, profile_name):
+    def __init__(self, video_object, profile_name):
         self.ffcommand = ''
-        self.VideoObject = VideoObject
+        self.VideoObject = video_object
         self.profile_name = profile_name
         self.encode_suffix = None
         self.filetype = None
@@ -140,37 +131,32 @@ class Encode():
         self.upload_filesize = None
         self.endpoint_url = None
 
-
     def pull_data(self):
 
-        encode_dict = {}
         veda_token = generate_apitoken.veda_tokengen()
-
-        if veda_token == None:
+        if veda_token is None:
             ErrorObject().print_error(
                 message="VEDA Token Generate"
-                )
+            )
             return None
 
-        data = {
-            'product_spec' : self.profile_name
-            }
+        data = {'product_spec': self.profile_name}
 
         headers = {
             'Authorization': 'Token ' + veda_token,
             'content-type': 'application/json'
-            }
+        }
         x = requests.get(
-            '/'.join((settings['veda_api_url'], 'encodes')), 
-            params=data, 
+            '/'.join((settings['veda_api_url'], 'encodes')),
+            params=data,
             headers=headers
-            )
-        enc_dict = json.loads(x.text)   
+        )
+        enc_dict = json.loads(x.text)
 
         if len(enc_dict['results']) == 0:
             ErrorObject().print_error(
                 message="VEDA API Encode Mismatch: No Data"
-                )
+            )
             return None
 
         for e in enc_dict['results']:
@@ -180,11 +166,11 @@ class Encode():
                 self.filetype = e['encode_filetype']
                 self.encode_suffix = e['encode_suffix']
                 self.encode_pk = e['id']
-        
-        if self.encode_suffix == None:
+
+        if self.encode_suffix is None:
             ErrorObject().print_error(
                 message="VEDA API Encode Data Fail: No Suffix"
-                )
+            )
             return None
 
 
@@ -193,5 +179,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
-
-
