@@ -3,6 +3,7 @@ import os
 import sys
 import unittest
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from veda_worker.__init__ import VedaWorker
 from veda_worker.abstractions import Video, Encode
 from veda_worker.config import WorkerSetup

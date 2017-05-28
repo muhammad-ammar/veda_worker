@@ -4,6 +4,8 @@ import sys
 import unittest
 import requests
 
+# for Travis
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from veda_worker.config import WorkerSetup
 from veda_worker.generate_apitoken import val_tokengen, veda_tokengen
 

@@ -23,13 +23,13 @@ homedir = expanduser("~")
 
 def cel_Start():
     app = Celery(
-        settings['celery_app_name'],
-        broker='amqp://' + settings['rabbitmq_user'] +
-               ':' + settings['rabbitmq_pass'] +
-               '@' + settings['rabbitmq_broker'] + ':5672//',
-        backend='amqp://' + settings['rabbitmq_user'] +
-                ':' + settings['rabbitmq_pass'] +
-                '@' + settings['rabbitmq_broker'] + ':5672//',
+        settings.setdefault('celery_app_name', ''),
+        broker='amqp://' + settings.setdefault('rabbitmq_user', '') +
+               ':' + settings.setdefault('rabbitmq_pass', '') +
+               '@' + settings.setdefault('rabbitmq_broker', '') + ':5672//',
+        backend='amqp://' + settings.setdefault('rabbitmq_user', '') +
+                ':' + settings.setdefault('rabbitmq_pass', '') +
+                '@' + settings.setdefault('rabbitmq_broker', '') + ':5672//',
         include=['celeryapp']
     )
 
