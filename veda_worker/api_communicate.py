@@ -130,7 +130,7 @@ class UpdateAPIStatus:
 
             w = requests.patch(
                 '/'.join((settings['veda_api_url'], 'videos', str(u['id']), '')),
-                headers=self.veda_headers, 
+                headers=self.veda_headers,
                 data=json.dumps(video_data)
             )
             if w.status_code != 200:
@@ -144,30 +144,31 @@ class UpdateAPIStatus:
         VAL is very tetchy -- it needs a great deal of specific info or it will fail
         """
         '''
-        sending_data = { 
+        sending_data = {
             encoded_videos = [{
                 url="https://testurl.mp4",
                 file_size=8499040,
                 bitrate=131,
                 profile="override",
                 }, {...},],
-            client_video_id = "This is a VEDA-VAL Test", 
-            courses = [ "TEST", "..." ], 
+            client_video_id = "This is a VEDA-VAL Test",
+            courses = [ "TEST", "..." ],
             duration = 517.82,
             edx_video_id = "TESTID",
             status = "transcode_active"
             }
         ## "POST" for new objects to 'video' root url
-        ## "PUT" for extant objects to video/id -- 
+        ## "PUT" for extant objects to video/id --
             cannot send duplicate course records
         '''
-        if self.val_token is None: return None
+        if self.val_token is None:
+            return None
 
         # in case non-studio side upload
         if self.VideoObject.val_id is None or len(self.VideoObject.val_id) == 0:
             self.VideoObject.val_id = self.VideoObject.veda_id
 
-        val_data = { 
+        val_data = {
             'client_video_id': self.VideoObject.val_id,
             'duration': self.VideoObject.mezz_duration,
             'edx_video_id': self.VideoObject.val_id,
@@ -199,14 +200,14 @@ class UpdateAPIStatus:
             val_data['courses'] = self.VideoObject.course_url
             val_data['status'] = self.val_video_status
 
-            ## FINAL CONNECTION
+            # Final Connection
             r2 = requests.post(
                 settings['val_api_url'],
                 data=json.dumps(val_data),
                 headers=self.val_headers,
                 timeout=20
             )
-            
+
             if r2.status_code > 299:
                 ErrorObject().print_error(
                     method=self,
@@ -221,7 +222,7 @@ class UpdateAPIStatus:
             val_api_return = ast.literal_eval(r1.text)
 
             """
-            VAL will not allow duped studio urls to be sent, so 
+            VAL will not allow duped studio urls to be sent, so
             we must scrub the data
             """
             for c in self.VideoObject.course_url:
@@ -248,7 +249,7 @@ class UpdateAPIStatus:
             """
             r2 = requests.put(
                 '/'.join((settings['val_api_url'], self.VideoObject.val_id)),
-                data=json.dumps(val_data), 
+                data=json.dumps(val_data),
                 headers=self.val_headers,
                 timeout=20
             )
