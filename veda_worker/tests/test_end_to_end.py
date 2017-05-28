@@ -28,10 +28,10 @@ class TestEndtoEnd(unittest.TestCase):
         self.jobid = 'xx4xx'
 
         self.VW = VedaWorker(
-            veda_id=self.veda_id, 
+            veda_id=self.veda_id,
             encode_profile=self.encode_profile,
             jobid=self.jobid
-            )
+        )
 
     @unittest.skip("not implemented")
     def test_intake(self):
@@ -44,7 +44,7 @@ class TestEndtoEnd(unittest.TestCase):
         """
         self.VW.VideoObject = Video(
             veda_id=self.VW.veda_id
-            )
+        )
         self.VW.VideoObject.activate()
         self.assertTrue(self.VW.VideoObject.valid)
         self.VW.settings = self.settings
@@ -54,11 +54,11 @@ class TestEndtoEnd(unittest.TestCase):
         self.assertTrue(
             os.path.exists(
                 os.path.join(
-                    self.VW.workdir, 
+                    self.VW.workdir,
                     self.VW.source_file
-                    )
                 )
             )
+        )
 
         self.assertTrue(self.VW.VideoObject.valid)
 
@@ -77,7 +77,7 @@ class TestEndtoEnd(unittest.TestCase):
             celery_task_fire.deliverable_route.apply_async(
                 (final_name, ),
                 queue='transcode_stat'
-                )
+            )
 
     def tearDown(self):
         """
@@ -90,14 +90,15 @@ class TestEndtoEnd(unittest.TestCase):
                 os.path.join(
                     self.VW.workdir,
                     self.VW.output_file
-                    )
                 )
+            )
             os.remove(
                 os.path.join(
                     self.VW.workdir,
                     self.VW.source_file
-                    )
                 )
+            )
+
     @unittest.skip("not implemented")
     def determine_config(self):
         """
@@ -109,17 +110,17 @@ class TestEndtoEnd(unittest.TestCase):
             self.val = ConnectionTest(
                 Settings=self.Settings,
                 val_test=True
-                ).passed
+            ).passed
 
         if self.Settings.NODE_VEDA_ATTACH is True:
             """Off if off in settings"""
             self.veda = ConnectionTest(
                 Settings=self.Settings,
                 veda_test=True
-                ).passed
+            ).passed
             self.celery = CeleryConnect(
                 Settings=self.Settings
-                ).passed
+            ).passed
 
         AC = AssetConnection(Settings=self.Settings)
 
@@ -130,7 +131,7 @@ class TestEndtoEnd(unittest.TestCase):
             self.hotstore = AC.hotstore
             self.deliver = AC.deliver
 
-        ## TODO: MAKE THIS PRETTIER
+        # TODO: MAKE THIS PRETTIER
         self.report_config()
 
     @unittest.skip("not implemented")
@@ -138,13 +139,13 @@ class TestEndtoEnd(unittest.TestCase):
         """
         Generate Ingest
         """
-        if self.mezz_video == None:
+        if self.mezz_video is None:
             print 'KEYKEY'
         if self.veda is False:
             FI = Ingest(
-                Settings = self.Settings,
+                Settings=self.Settings,
                 mezz_video=self.mezz_video
-                )
+            )
             if self.ingest is False and self.hotstore is True:
                 """
                 Copy FROM Hotstore
@@ -159,9 +160,9 @@ class TestEndtoEnd(unittest.TestCase):
                 FI.ingest = True
         else:
             FI = Ingest(
-                Settings = self.Settings,
+                Settings=self.Settings,
                 mezz_video=self.Settings.TEST_VIDEO_ID
-                )
+            )
             """
             Will always be hotstore true and ingest false, so leaving edge cases
             """
@@ -182,7 +183,7 @@ class TestEndtoEnd(unittest.TestCase):
             filepath=self.AbstractionLayer.VideoObject.mezz_filepath,
             VideoObject=self.AbstractionLayer.VideoObject,
             mezz_file=True
-            )
+        )
         self.AbstractionLayer.valid = Q1.activate()
         return self.AbstractionLayer.valid
 
@@ -192,11 +193,11 @@ class TestEndtoEnd(unittest.TestCase):
         Generate the (shell) command / Encode Object
         and tack it into the AbstractionLayer Object
         """
-        if self.AbstractionLayer.VideoObject == None:
+        if self.AbstractionLayer.VideoObject is None:
             ErrorObject(
-                method = self,
-                message = 'Encode Gen Fail\nNo Video Object'
-                )
+                method=self,
+                message='Encode Gen Fail\nNo Video Object'
+            )
             return False
 
         if self.veda is True:
@@ -205,10 +206,10 @@ class TestEndtoEnd(unittest.TestCase):
             at a time, so we'll just test the one
             """
             E1 = Encode(
-                Settings = self.Settings,
-                VideoObject = self.AbstractionLayer.VideoObject,
-                profile_name = self.Settings.TEST_ENCODE_PROFILE
-                )
+                Settings=self.Settings,
+                VideoObject=self.AbstractionLayer.VideoObject,
+                profile_name=self.Settings.TEST_ENCODE_PROFILE
+            )
             E1.activate()
             self.AbstractionLayer.Encodes.append(E1)
 
@@ -218,28 +219,28 @@ class TestEndtoEnd(unittest.TestCase):
             """
             for key, entry in self.Settings.NODE_ENCODE_PROFILES.iteritems():
                 E1 = Encode(
-                    Settings = self.Settings,
-                    VideoObject = self.AbstractionLayer.VideoObject,
-                    profile_name = key
+                    Settings=self.Settings,
+                    VideoObject=self.AbstractionLayer.VideoObject,
+                    profile_name=key
                 )
                 E1.activate()
                 self.AbstractionLayer.Encodes.append(E1)
 
         for E in self.AbstractionLayer.Encodes:
             CG = CommandGenerate(
-                Settings = self.Settings,
-                VideoObject = self.AbstractionLayer.VideoObject,
-                EncodeObject = E
-                )
+                Settings=self.Settings,
+                VideoObject=self.AbstractionLayer.VideoObject,
+                EncodeObject=E
+            )
             CG.activate()
             E.ffcommand = CG.ffcommand
 
         for E in self.AbstractionLayer.Encodes:
-            if E.ffcommand == None or len(E.ffcommand) == 0:
+            if E.ffcommand is None or len(E.ffcommand) == 0:
                 ErrorObject(
                     method=self,
                     message='Encode Gen Fail\nCommand Gen Fail'
-                    )
+                )
                 return False
 
         return True
@@ -252,8 +253,8 @@ class TestEndtoEnd(unittest.TestCase):
         """
         for E in self.AbstractionLayer.Encodes:
             FF = CommandExecute(
-                ffcommand = E.ffcommand,
-                )
+                ffcommand=E.ffcommand,
+            )
             E.complete = FF.activate()
             E.output_file = FF.output
             # just being polite
@@ -273,7 +274,7 @@ class TestEndtoEnd(unittest.TestCase):
                 filepath=E.output_file,
                 VideoObject=self.AbstractionLayer.VideoObject,
                 mezz_file=False
-                )
+            )
             if Q1.activate() is False:
                 return False
         return True
@@ -294,7 +295,7 @@ class TestEndtoEnd(unittest.TestCase):
                 Settings=self.Settings,
                 VideoObject=self.AbstractionLayer.VideoObject,
                 EncodeObject=E
-                )
+            )
             passed = D1.activate()
 
             if passed is False:
@@ -315,7 +316,7 @@ class TestEndtoEnd(unittest.TestCase):
                     Settings=self.Settings,
                     VideoObject=self.AbstractionLayer.VideoObject,
                     EncodeObject=E
-                    )
+                )
                 passed = V1.activate()
                 if passed is False:
                     return False
@@ -330,7 +331,7 @@ class TestEndtoEnd(unittest.TestCase):
                 Settings=self.Settings,
                 VideoObject=self.AbstractionLayer.VideoObject,
                 video_status=True
-                )
+            )
             passed = V2.activate()
             return passed
         else:
@@ -344,7 +345,7 @@ class TestEndtoEnd(unittest.TestCase):
                     Settings=self.Settings,
                     VideoObject=self.AbstractionLayer.VideoObject,
                     EncodeObject=E
-                    )
+                )
                 passed = V2.activate()
                 if passed is False:
                     return False

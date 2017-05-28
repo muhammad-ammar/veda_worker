@@ -55,15 +55,16 @@ class Deliverable():
         # file size
         self.upload_filesize = os.stat(
             os.path.join(self.workdir, self.output_file)
-            ).st_size
+        ).st_size
         # hash sum
         self.hash_sum = hashlib.md5(
             open(
                 os.path.join(
-                    self.workdir, 
+                    self.workdir,
                     self.output_file
-                    ), 'rb').read()
-            ).hexdigest()
+                ), 'rb'
+            ).read()
+        ).hexdigest()
 
         if self.upload_filesize < MULTI_UPLOAD_BARRIER:
             """
@@ -108,7 +109,7 @@ class Deliverable():
         upload_key.key = self.output_file
         upload_key.set_contents_from_filename(
             os.path.join(self.workdir, self.output_file)
-            )
+        )
         return True
 
     def _boto_multipart(self):
@@ -120,12 +121,12 @@ class Deliverable():
         """
         if not os.path.exists(
             os.path.join(
-                self.workdir, 
+                self.workdir,
                 self.output_file.split('.')[0]
             )
         ):
             os.mkdir(os.path.join(
-                self.workdir, 
+                self.workdir,
                 self.output_file.split('.')[0]
             ))
 
@@ -134,11 +135,10 @@ class Deliverable():
         )
 
         # Split File into chunks
-        split_command = 'split -b10m -a5' ##5 part names of 5mb
+        split_command = 'split -b10m -a5'  # 5 part names of 5mb
         sys.stdout.write('%s : %s\n' % (self.output_file, 'Generating Multipart'))
         os.system(' '.join((split_command, os.path.join(self.workdir, self.output_file))))
         sys.stdout.flush()
-
 
         # Connect to s3
         try:
@@ -167,7 +167,7 @@ class Deliverable():
         x = 1
         for fle in sorted(os.listdir(
             os.path.join(
-                self.workdir, 
+                self.workdir,
                 self.output_file.split('.')[0]
             )
         )):
@@ -175,7 +175,7 @@ class Deliverable():
             fp = open(fle, 'rb')
             mp.upload_part_from_file(fp, x)
             fp.close()
-            sys.stdout.flush()            
+            sys.stdout.flush()
             x += 1
         sys.stdout.write('\n')
         mp.complete_upload()

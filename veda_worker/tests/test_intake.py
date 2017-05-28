@@ -25,22 +25,20 @@ class TestIntake(unittest.TestCase):
         self.jobid = 'xx4xx'
 
         self.VW = VedaWorker(
-            veda_id=self.veda_id, 
+            veda_id=self.veda_id,
             encode_profile=self.encode_profile,
             jobid=self.jobid
-            )
+        )
 
     def test_intake(self):
         if not os.path.exists(self.WS.instance_yaml):
             self.assertTrue(True)
             return None
 
-        """
-        copied from __init__
-        """
+        # copied from __init__
         self.VW.VideoObject = Video(
             veda_id=self.VW.veda_id
-            )
+        )
         self.VW.VideoObject.activate()
         self.assertTrue(self.VW.VideoObject.valid)
         self.VW.settings = self.settings
@@ -51,17 +49,16 @@ class TestIntake(unittest.TestCase):
         self.assertTrue(
             os.path.exists(
                 os.path.join(
-                    self.VW.workdir, 
+                    self.VW.workdir,
                     self.VW.source_file
-                    )
                 )
             )
+        )
 
         self.assertTrue(self.VW.VideoObject.valid)
 
     @unittest.skip("not implemented")
     def tearDown(self):
-        pass
         if self.jobid is not None:
             shutil.rmtree(self.VW.workdir)
         else:
@@ -69,14 +66,14 @@ class TestIntake(unittest.TestCase):
                 os.path.join(
                     self.VW.workdir,
                     self.VW.output_file
-                    )
                 )
+            )
             os.remove(
                 os.path.join(
                     self.VW.workdir,
                     self.VW.source_file
-                    )
                 )
+            )
 
 
 def main():
@@ -84,4 +81,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
-

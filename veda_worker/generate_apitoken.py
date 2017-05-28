@@ -28,9 +28,9 @@ def veda_tokengen():
     payload = {'grant_type': 'client_credentials'}
     r = requests.post(
         settings['veda_token_url'] + '/',
-        params=payload, 
+        params=payload,
         auth=(
-            settings['veda_client_id'], 
+            settings['veda_client_id'],
             settings['veda_secret_key']
         ),
         timeout=20
@@ -52,11 +52,11 @@ def veda_tokengen():
 
     **it's shit, and needs a rewrite. see api.py in veda-django
     """
-    payload = {'data': veda_token }
+    payload = {'data': veda_token}
     t = requests.post(
-        settings['veda_auth_url'] + '/', 
+        settings['veda_auth_url'] + '/',
         data=payload
-        )
+    )
     if t.status_code == 200:
         return t.text.strip()
     else:
@@ -73,10 +73,10 @@ def val_tokengen():
     payload = {
         'grant_type': 'password',
         'client_id': settings['val_client_id'],
-        'client_secret':  settings['val_secret_key'],
+        'client_secret': settings['val_secret_key'],
         'username': settings['val_username'],
         'password': settings['val_password']
-        }
+    }
 
     r = requests.post(settings['val_token_url'] + '/', data=payload, timeout=20)
 

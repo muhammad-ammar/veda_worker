@@ -16,9 +16,9 @@ class BuildTest(unittest.TestCase):
         self.default_yaml = os.path.join(
             os.path.dirname(
                 os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                ),
+            ),
             'default_config.yaml'
-            )
+        )
 
     def test_defaults(self):
 

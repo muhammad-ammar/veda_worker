@@ -5,7 +5,7 @@ import sys
 import celeryapp
 
 """
-generate and fire a test task 
+generate and fire a test task
 
 """
 

@@ -24,12 +24,12 @@ class TestCeleryConnect(unittest.TestCase):
             return None
 
         salient_variables = [
-            'celery_app_name', 
-            'celery_receiver_queue', 
+            'celery_app_name',
+            'celery_receiver_queue',
             'rabbitmq_user',
             'rabbitmq_pass',
             'rabbitmq_broker'
-            ]
+        ]
 
         for s in salient_variables:
             self.assertFalse(len(self.settings[s]) == 0)
@@ -48,15 +48,14 @@ class TestCeleryConnect(unittest.TestCase):
             + str(self.settings['celery_receiver_queue'])
         a1 = subprocess.Popen(
             worker_call, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
-            )
+        )
 
         print '** 10 sec of sleep while node connects to cluster **'
         time.sleep(10)
-
         a1.kill()  # Otherwise it's forever
 
-        test_command = 'Connected to amqp://'+self.settings['rabbitmq_user']+\
-            ':**@'+self.settings['rabbitmq_broker']+':5672//'
+        test_command = 'Connected to amqp://' + self.settings['rabbitmq_user'] + \
+            ':**@' + self.settings['rabbitmq_broker'] + ':5672//'
 
         for line in iter(a1.stdout.readline, b''):
             print line

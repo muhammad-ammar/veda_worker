@@ -30,13 +30,13 @@ class TestAPIConnection(unittest.TestCase):
             return None
 
         salient_variables = [
-            'val_api_url', 
+            'val_api_url',
             'val_client_id',
             'val_password',
-            'val_secret_key', 
+            'val_secret_key',
             'val_username',
             'val_token_url',
-            ]
+        ]
         for s in salient_variables:
             self.assertTrue(len(self.WS.settings_dict[s]) > 0)
 
@@ -46,12 +46,12 @@ class TestAPIConnection(unittest.TestCase):
             return None
 
         salient_variables = [
-            'veda_api_url', 
+            'veda_api_url',
             'veda_auth_url',
             'veda_client_id',
-            'veda_secret_key', 
+            'veda_secret_key',
             'veda_token_url',
-            ]
+        ]
         for s in salient_variables:
             self.assertTrue(len(self.WS.settings_dict[s]) > 0)
 
@@ -64,9 +64,9 @@ class TestAPIConnection(unittest.TestCase):
         self.assertFalse(val_token is None)
 
         headers = {
-            'Authorization': 'Bearer ' + val_token, 
+            'Authorization': 'Bearer ' + val_token,
             'content-type': 'application/json'
-            }
+        }
         s = requests.get(self.WS.settings_dict['val_api_url'], headers=headers, timeout=20)
 
         self.assertFalse(s.status_code == 404)
@@ -80,9 +80,9 @@ class TestAPIConnection(unittest.TestCase):
         veda_token = veda_tokengen()
         self.assertFalse(veda_token is None)
         headers = {
-            'Authorization': 'Token ' + veda_token, # + veda_token,
+            'Authorization': 'Token ' + veda_token,
             'content-type': 'application/json'
-            }
+        }
         s = requests.get(self.WS.settings_dict['veda_api_url'] + '/', headers=headers, timeout=20)
 
         self.assertFalse(s.status_code == 404)

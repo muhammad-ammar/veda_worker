@@ -27,14 +27,14 @@ class Test_Encode_Command(unittest.TestCase):
         # Video
         self.VideoObject = Video(
             veda_id='XXXXXXXX2016-V00TEST',
-            )
+        )
         self.VideoObject.activate()
 
         # Encode
         self.E = Encode(
             VideoObject=self.VideoObject,
             profile_name=self.encode_profile
-            )
+        )
         self.E.pull_data()
         self.ffcommand = None
 
@@ -58,9 +58,9 @@ class Test_Encode_Command(unittest.TestCase):
         Generate the (shell) command
         """
         self.ffcommand = CommandGenerate(
-            VideoObject = self.VideoObject,
-            EncodeObject = self.E
-            ).generate()
+            VideoObject=self.VideoObject,
+            EncodeObject=self.E
+        ).generate()
 
         self.assertFalse(self.ffcommand is None)
 
