@@ -8,11 +8,10 @@ install:
 
 script: veda_worker
 
-# testing until totally rebuilt
 script:
  - python tests/test_api_connect.py
-# - python tests/test_asset_connect.py
  - python tests/test_build.py
+# - python tests/test_asset_connect.py
 # - python tests/test_encode.py
 # - python tests/test_end_to_end.py
 # - python tests/test_intake.py
