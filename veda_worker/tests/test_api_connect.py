@@ -4,8 +4,8 @@ import sys
 import unittest
 import requests
 
-from veda_worker.config import WorkerSetup
-from veda_worker.generate_apitoken import val_tokengen, veda_tokengen
+from .config import WorkerSetup
+from .generate_apitoken import val_tokengen, veda_tokengen
 
 """
 This is an API connection test
