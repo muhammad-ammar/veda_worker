@@ -1,7 +1,10 @@
 
 import os
-import sys
 import subprocess
+import sys
+
+from reporting import ErrorObject, Output
+from config import WorkerSetup
 
 """
 
@@ -9,7 +12,6 @@ Quick QA for video file
 
 will not catch all errors
 but will catch ~0.95 of them
-@yro / 2016
 
 This should do some basic testing on the intake or generated file:
     - general file test (exists, size > 0)
@@ -20,18 +22,14 @@ FUTURE:
     - size/score ratio
     - artifacting?
 
-@yro / 2016
-
 """
-from reporting import ErrorObject, Output
-from config import WorkerSetup
 WS = WorkerSetup()
 if os.path.exists(WS.instance_yaml):
     WS.run()
 settings = WS.settings_dict
 
 
-class ValidateVideo():
+class ValidateVideo:
 
     def __init__(self, filepath, VideoObject=None, **kwargs):
         self.filepath = filepath
@@ -39,24 +37,22 @@ class ValidateVideo():
         self.product_file = kwargs.get('product_file', False)
         self.valid = self.validate()
 
-
     def validate(self):
         """
-        First: a general file test 
-            -size > 0, 
+        First: a general file test
+            -size > 0,
             -file exists
         """
         if not os.path.exists(self.filepath):
             ErrorObject().print_error(
-                message = 'File QA fail: File is not found\n' + \
-                    self.filepath
-                )
+                message='File QA fail: File is not found\n' + self.filepath
+            )
             return False
-        
+
         if os.stat(self.filepath).st_size == 0:
             ErrorObject().print_error(
-                message = 'File QA fail: Filesize is 0'
-                )
+                message='File QA fail: Filesize is 0'
+            )
             return False
 
         """
@@ -66,11 +62,11 @@ class ValidateVideo():
         ffcommand += '\"' + self.filepath + '\"'
 
         p = subprocess.Popen(
-            ffcommand, 
-            stdout=subprocess.PIPE, 
-            stderr=subprocess.STDOUT, 
+            ffcommand,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             shell=True
-            )
+        )
 
         for line in iter(p.stdout.readline, b''):
 
@@ -104,13 +100,12 @@ class ValidateVideo():
         """
         duration test (if not mezz, is equal to mezz)
         """
-        if self.VideoObject != None and self.product_file is True:
-            ## within five seconds
+        if self.VideoObject is not None and self.product_file is True:
+            # within five seconds
             if not (self.VideoObject.mezz_duration - 5) <= duration <= (self.VideoObject.mezz_duration + 5):
                 return False
 
         return True
-
 
 
 def main():
@@ -119,4 +114,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
-

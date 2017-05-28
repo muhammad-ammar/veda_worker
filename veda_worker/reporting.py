@@ -1,9 +1,9 @@
 
-import os
-import sys
-import socket
-import yaml
 import boto.ses
+import os
+import socket
+import sys
+import yaml
 
 """
 Let's do some quick and dirty error handling & logging
@@ -12,14 +12,15 @@ Let's do some quick and dirty error handling & logging
 
 from global_vars import *
 
+
 class Credentials():
 
     def __init__(self):
         self.auth_yaml = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             'instance_config.yaml'
-            )
-        self.auth_dict = self._AUTH()        
+        )
+        self.auth_dict = self._AUTH()
 
     def _AUTH(self):
         if not os.path.exists(self.auth_yaml):
@@ -31,22 +32,19 @@ class Credentials():
                 return None
 
 
-"""
-Unspecified errors with a message
-"""
-
 class ErrorObject(object):
-
+    """
+    Unspecified errors with a message
+    """
     @staticmethod
     def print_error(message):
         decorator = "***************E*R*R*O*R*******************"
         outgoing = '\n%s \n\n%s \n\n%s\n' % (
-            NODE_COLORS_BLUE + decorator + NODE_COLORS_END, 
-            message, 
-            NODE_COLORS_BLUE + decorator + NODE_COLORS_END, 
-            )
+            NODE_COLORS_BLUE + decorator + NODE_COLORS_END,
+            message,
+            NODE_COLORS_BLUE + decorator + NODE_COLORS_END,
+        )
         print outgoing
-
 
 
 class Output(object):
@@ -75,7 +73,7 @@ class Output(object):
 
             if line == '' and process.poll() is not None:
                 break
-            if fps == None or duration == None:
+            if fps is None or duration is None:
                 if "Stream #" in line and " Video: " in line:
                     fps = [s for s in line.split(',') if "fps" in s][0].strip(' fps')
 
@@ -90,17 +88,16 @@ class Output(object):
                     pctg = (float(cur_frame) / float(end_frame))
                     sys.stdout.write('\r')
                     i = int(pctg * 20.0)
-                    sys.stdout.write("%s : [%-20s] %d%%" % ('Transcode', '='*i, int(pctg * 100)))
+                    sys.stdout.write("%s : [%-20s] %d%%" % ('Transcode', '=' * i, int(pctg * 100)))
                     sys.stdout.flush()
-        """
-        Just for politeness
-        """
+
+        # Just for politeness
         sys.stdout.write('\r')
-        sys.stdout.write("%s : [%-20s] %d%%" % ('Transcode', '='*20, 100))
+        sys.stdout.write("%s : [%-20s] %d%%" % ('Transcode', '=' * 20, 100))
         sys.stdout.flush()
 
 
-class EmailAlert():
+class EmailAlert:
 
     def __init__(self, **kwargs):
         self.auth_dict = Credentials().auth_dict
@@ -108,10 +105,9 @@ class EmailAlert():
 
         self.recipients = [
             'greg@edx.org',
-            ]
+        ]
         self.ipaddy = socket.gethostbyname(socket.gethostname())
         self.sender = 'veda-noreply@edx.org'
-
 
     def email(self):
         email_subject = '[ VEDA ALERTING ]'
@@ -127,28 +123,28 @@ class EmailAlert():
             'us-east-1',
             aws_access_key_id=self.auth_dict['abvid_access_key_id'],
             aws_secret_access_key=self.auth_dict['abvid_secret_access_key']
-            )
+        )
 
         conn.send_email(
             self.sender,
             email_subject,
             email_body,
             self.recipients
-            )
+        )
 
 
-
-"""Just to sneak a peek"""
 def main():
+    """
+    Just to sneak a peek
+    """
+
     daemon_error = "Disk Free Space Alert"
 
     E2 = EmailAlert(
         message=daemon_error
-        )
+    )
     E2.email()
-
 
 
 if __name__ == '__main__':
     sys.exit(main())
-
