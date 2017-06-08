@@ -16,13 +16,11 @@ sys.path.append(
 from veda_worker.__init__ import VedaWorker
 
 
-
-class VedaWorkerCli():
+class VedaWorkerCli:
 
     def __init__(self):
         self.args = None
         self.test = False
-
 
     def get_args(self):
         parser = argparse.ArgumentParser()
@@ -66,18 +64,16 @@ class VedaWorkerCli():
 
         self.args = parser.parse_args()
 
-        self._PARSE_ARGS()
+        self._parseargs()
 
-
-    def _PARSE_ARGS(self):
+    def _parseargs(self):
         self.veda_id = self.args.vedaid
         self.encode_profile = self.args.profile
         self.jobid = self.args.job
         self.test = self.args.test
         self.setup = self.args.setup
 
-
-    def _RUN(self):
+    def run(self):
         """
         run actual instance
         """
@@ -85,7 +81,7 @@ class VedaWorkerCli():
             veda_id=self.veda_id,
             encode_profile=self.encode_profile,
             setup=self.setup,
-            jobid = self.jobid
+            jobid=self.jobid
             )
         if self.test is True:
             VW.test()
@@ -93,11 +89,10 @@ class VedaWorkerCli():
             VW.run()
 
 
-
 def main():
-    VW = VedaWorkerCli()
-    VW.get_args()
-    VW._RUN()
+    WorkerInstance = VedaWorkerCli()
+    WorkerInstance.get_args()
+    WorkerInstance.run()
 
 
 if __name__ == '__main__':

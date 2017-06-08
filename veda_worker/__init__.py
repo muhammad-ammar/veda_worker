@@ -11,7 +11,7 @@ import shutil
 
 from boto.s3.connection import S3Connection
 from os.path import expanduser
-from vhls import VHLS
+# from vhls import VHLS
 
 from abstractions import Video, Encode
 from api_communicate import UpdateAPIStatus
@@ -33,7 +33,8 @@ homedir = expanduser("~")
 boto.config.set('Boto', 'http_socket_timeout', '10')
 
 
-class VedaWorker():
+class VedaWorker:
+
     def __init__(self, **kwargs):
         """
         Init settings
@@ -43,10 +44,10 @@ class VedaWorker():
         self.setup = kwargs.get('setup', False)
         self.jobid = kwargs.get('jobid', None)
         self.encode_profile = kwargs.get('encode_profile', None)
-        self.VideoObject = None
+        self.VideoObject = kwargs.get('VideoObject', None)
 
         """
-        Yucky working directory stuff
+        Bad working directory stuff
         """
         if self.jobid is None:
             self.workdir = os.path.join(
@@ -86,7 +87,7 @@ class VedaWorker():
         current_dir = os.getcwd()
 
         test_dir = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             'tests'
         )
         os.chdir(test_dir)
@@ -278,7 +279,7 @@ class VedaWorker():
         Generate the (shell) command / Encode Object
         """
         E = Encode(
-            VideoObject=self.VideoObject,
+            video_object=self.VideoObject,
             profile_name=self.encode_profile
         )
         E.pull_data()

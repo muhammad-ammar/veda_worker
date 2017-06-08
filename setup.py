@@ -18,6 +18,7 @@ setup(
     license='',
     packages=['veda_worker'],
     # scripts=['bin/veda_worker'],
+    dependency_links=['https://github.com/yro/vhls.git'],
     package_data={
         # If any package contains *.txt or *.rst files, include them:
         '': ['*.txt', '*.rst', '*.yaml'],
