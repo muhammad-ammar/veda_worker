@@ -2,6 +2,7 @@
 import ast
 import json
 import os
+import operator
 import requests
 
 from global_vars import *
@@ -220,14 +221,16 @@ class UpdateAPIStatus:
             ID is previously extant
             """
             val_api_return = ast.literal_eval(r1.text)
+            # extract course ids, courses will be a list of dicts, [{'course_id': 'image_name'}]
+            course_ids = reduce(operator.concat, (d.keys() for d in val_api_return['courses']))
 
             """
             VAL will not allow duped studio urls to be sent, so
             we must scrub the data
             """
-            for c in self.VideoObject.course_url:
-                if c in [o for o in val_api_return['courses']]:
-                    self.VideoObject.course_url.remove(c)
+            for course_id in self.VideoObject.course_url:
+                if course_id in course_ids:
+                    self.VideoObject.course_url.remove(course_id)
 
             val_data['courses'] = self.VideoObject.course_url
 
