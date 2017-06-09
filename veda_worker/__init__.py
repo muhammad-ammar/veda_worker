@@ -16,7 +16,7 @@ from os.path import expanduser
 from abstractions import Video, Encode
 from api_communicate import UpdateAPIStatus
 import celeryapp
-from config import WorkerSetup
+from veda_worker.config import WorkerSetup
 from generate_encode import CommandGenerate
 from generate_delivery import Deliverable
 from global_vars import *
@@ -46,33 +46,44 @@ class VedaWorker:
         self.encode_profile = kwargs.get('encode_profile', None)
         self.VideoObject = kwargs.get('VideoObject', None)
 
+        self.instance_yaml = kwargs.get(
+            'instance_yaml',
+            os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                'instance_config.yaml'
+            )
+        )
+
+
         """
         Bad working directory stuff
         """
-        if self.jobid is None:
-            self.workdir = os.path.join(
-                homedir,
-                'ENCODE_WORKDIR'
-            )
-        else:
-            self.workdir = os.path.join(
-                homedir,
-                'ENCODE_WORKDIR',
-                self.jobid
-            )
+        self.workdir = kwargs.get('workdir', None)
+        if self.workdir is None:
+            if self.jobid is None:
+                self.workdir = os.path.join(
+                    homedir,
+                    'ENCODE_WORKDIR'
+                )
+            else:
+                self.workdir = os.path.join(
+                    homedir,
+                    'ENCODE_WORKDIR',
+                    self.jobid
+                )
 
-        if not os.path.exists(os.path.join(
-                homedir,
-                'ENCODE_WORKDIR'
-        )):
-            os.mkdir(os.path.join(
-                homedir,
-                'ENCODE_WORKDIR'
-            ))
+            if not os.path.exists(os.path.join(
+                    homedir,
+                    'ENCODE_WORKDIR'
+            )):
+                os.mkdir(os.path.join(
+                    homedir,
+                    'ENCODE_WORKDIR'
+                ))
 
         """#---#"""
         self.ffcommand = None
-        self.source_file = None
+        self.source_file = kwargs.get('source_file', None)
         self.output_file = None
         self.endpoint_url = None
 
@@ -98,8 +109,9 @@ class VedaWorker:
         return test_bool
 
     def run(self):
-
-        WS = WorkerSetup()
+        WS = WorkerSetup(
+            instance_yaml=self.instance_yaml
+        )
         if self.setup is True:
             WS.setup = True
 
@@ -138,15 +150,17 @@ class VedaWorker:
           VII. Clean Directory
 
         """
-        self._engine_intake()
+        # print
+        if 'ENCODE_WORKDIR' not in self.workdir:
+            self._engine_intake()
 
         if self.VideoObject.valid is False:
             ErrorObject().print_error(
                 message='Invalid Video / Local'
             )
             return None
-
-        self._update_api()
+        if self.VideoObject.val_id is not None:
+            self._update_api()
 
         # generate video images command and update S3 and edxval
         # run against 'hls' encode only
@@ -227,39 +241,39 @@ class VedaWorker:
             )
 
             return None
-
-        conn = S3Connection(
-            self.settings['aws_access_key'],
-            self.settings['aws_secret_key']
-        )
-        try:
-            bucket = conn.get_bucket(self.settings['aws_storage_bucket'])
-
-        except:
-            ErrorObject().print_error(
-                message='Invalid Storage Bucket'
+        if self.source_file is None:
+            conn = S3Connection(
+                self.settings['aws_access_key'],
+                self.settings['aws_secret_key']
             )
-            return None
+            try:
+                bucket = conn.get_bucket(self.settings['aws_storage_bucket'])
 
-        self.source_file = '.'.join((
-            self.VideoObject.veda_id,
-            self.VideoObject.mezz_extension
-        ))
-        source_key = bucket.get_key(self.source_file)
+            except:
+                ErrorObject().print_error(
+                    message='Invalid Storage Bucket'
+                )
+                return None
 
-        if source_key is None:
-            ErrorObject().print_error(
-                message='S3 Intake Object NOT FOUND',
+            self.source_file = '.'.join((
+                self.VideoObject.veda_id,
+                self.VideoObject.mezz_extension
+            ))
+            source_key = bucket.get_key(self.source_file)
+
+            if source_key is None:
+                ErrorObject().print_error(
+                    message='S3 Intake Object NOT FOUND',
+                )
+                return None
+            source_key.get_contents_to_filename(
+                os.path.join(self.workdir, self.source_file)
             )
-            return None
-        source_key.get_contents_to_filename(
-            os.path.join(self.workdir, self.source_file)
-        )
 
-        if not os.path.exists(os.path.join(self.workdir, self.source_file)):
-            ErrorObject().print_error(
-                message='Engine Intake Download',
-            )
+            if not os.path.exists(os.path.join(self.workdir, self.source_file)):
+                ErrorObject().print_error(
+                    message='Engine Intake Download',
+                )
             return None
 
         self.VideoObject.valid = ValidateVideo(

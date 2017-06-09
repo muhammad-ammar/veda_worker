@@ -11,7 +11,7 @@ based on variables within
 """
 
 
-class WorkerSetup():
+class WorkerSetup:
 
     def __init__(self, **kwargs):
         self.instance_yaml = kwargs.get(

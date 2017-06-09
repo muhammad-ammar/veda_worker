@@ -131,48 +131,65 @@ class Encode:
         self.output_file = None
         self.upload_filesize = None
         self.endpoint_url = None
+        self.encode_library = None
 
     def pull_data(self):
+        if self.VideoObject.veda_id is not None:
+            veda_token = generate_apitoken.veda_tokengen()
+            if veda_token is None:
+                ErrorObject().print_error(
+                    message="VEDA Token Generate"
+                )
+                return None
 
-        veda_token = generate_apitoken.veda_tokengen()
-        if veda_token is None:
-            ErrorObject().print_error(
-                message="VEDA Token Generate"
+            data = {'product_spec': self.profile_name}
+
+            headers = {
+                'Authorization': 'Token ' + veda_token,
+                'content-type': 'application/json'
+            }
+            x = requests.get(
+                '/'.join((settings['veda_api_url'], 'encodes')),
+                params=data,
+                headers=headers
             )
-            return None
+            enc_dict = json.loads(x.text)
 
-        data = {'product_spec': self.profile_name}
+            if len(enc_dict['results']) == 0:
+                ErrorObject().print_error(
+                    message="VEDA API Encode Mismatch: No Data"
+                )
+                return None
 
-        headers = {
-            'Authorization': 'Token ' + veda_token,
-            'content-type': 'application/json'
-        }
-        x = requests.get(
-            '/'.join((settings['veda_api_url'], 'encodes')),
-            params=data,
-            headers=headers
-        )
-        enc_dict = json.loads(x.text)
+            for e in enc_dict['results']:
+                if e['product_spec'] == self.profile_name and e['profile_active'] is True:
+                    self.resolution = e['encode_resolution']
+                    self.rate_factor = e['encode_bitdepth']
+                    self.filetype = e['encode_filetype']
+                    self.encode_suffix = e['encode_suffix']
+                    self.encode_pk = e['id']
 
-        if len(enc_dict['results']) == 0:
-            ErrorObject().print_error(
-                message="VEDA API Encode Mismatch: No Data"
+            if self.encode_suffix is None:
+                ErrorObject().print_error(
+                    message="VEDA API Encode Data Fail: No Suffix"
+                )
+                return None
+        else:
+            encode_data = self._read_encodes()
+            print encode_data[self.profile_name]
+
+    def _read_encodes(self):
+        if self.encode_library is None:
+            self.encode_library = os.path.join(
+                os.path.dirname(os.path.dirname(
+                    os.path.abspath(__file__))
+                ),
+                'default_encode_profiles.json'
             )
-            return None
 
-        for e in enc_dict['results']:
-            if e['product_spec'] == self.profile_name and e['profile_active'] is True:
-                self.resolution = e['encode_resolution']
-                self.rate_factor = e['encode_bitdepth']
-                self.filetype = e['encode_filetype']
-                self.encode_suffix = e['encode_suffix']
-                self.encode_pk = e['id']
-
-        if self.encode_suffix is None:
-            ErrorObject().print_error(
-                message="VEDA API Encode Data Fail: No Suffix"
-            )
-            return None
+        with open(self.encode_library) as data_file:
+            data = json.load(data_file)
+            return data["ENCODE_PROFILES"]
 
 
 def main():
