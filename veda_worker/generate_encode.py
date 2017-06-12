@@ -36,19 +36,8 @@ class CommandGenerate:
         self.VideoObject = VideoObject
         self.EncodeObject = EncodeObject
         self.jobid = kwargs.get('jobid', None)
+        self.workdir = kwargs.get('workdir', None)
         self.ffcommand = []
-
-        if self.jobid is None:
-            self.workdir = os.path.join(
-                homedir,
-                'ENCODE_WORKDIR'
-            )
-        else:
-            self.workdir = os.path.join(
-                homedir,
-                'ENCODE_WORKDIR',
-                self.jobid
-            )
 
     def generate(self):
         """
@@ -66,6 +55,18 @@ class CommandGenerate:
             )
             return None
 
+        if self.workdir is None:
+            if self.jobid is None:
+                self.workdir = os.path.join(
+                    homedir,
+                    'ENCODE_WORKDIR'
+                )
+            else:
+                self.workdir = os.path.join(
+                    homedir,
+                    'ENCODE_WORKDIR',
+                    self.jobid
+                )
         """
         These build the command, and, unfortunately, must be in order
         """
@@ -88,13 +89,22 @@ class CommandGenerate:
         self.ffcommand.append("-hide_banner")
         self.ffcommand.append("-y")
         self.ffcommand.append("-i")
-        self.ffcommand.append(os.path.join(
-            self.workdir,
-            '.'.join((
-                self.VideoObject.veda_id,
-                self.VideoObject.mezz_extension
+        if self.VideoObject.veda_id is not None:
+            self.ffcommand.append(os.path.join(
+                self.workdir,
+                '.'.join((
+                    self.VideoObject.veda_id,
+                    self.VideoObject.mezz_extension
+                ))
             ))
-        ))
+        else:
+            self.ffcommand.append(os.path.join(
+                self.workdir,
+                '.'.join((
+                    os.path.basename(self.VideoObject.mezz_filepath).split('.')[0],
+                    self.VideoObject.mezz_extension
+                ))
+            ))
 
         if self.EncodeObject.filetype != 'mp3':
             self.ffcommand.append("-c:v")
@@ -251,13 +261,24 @@ class CommandGenerate:
             # This is WEBM = 1 Pass
             self.ffcommand.append("-c:a")
             self.ffcommand.append("libvorbis")
-
-        self.ffcommand.append(
-            os.path.join(
-                self.workdir,
-                self.VideoObject.veda_id + "_" + self.EncodeObject.encode_suffix + "." + self.EncodeObject.filetype
+        if self.VideoObject.veda_id is not None:
+            self.ffcommand.append(
+                os.path.join(
+                    self.workdir,
+                    self.VideoObject.veda_id + "_" + self.EncodeObject.encode_suffix + "." + self.EncodeObject.filetype
+                )
             )
-        )
+        else:
+            self.ffcommand.append(
+                os.path.join(
+                    self.workdir,
+                    "%s_%s.%s" % (
+                        os.path.basename(self.VideoObject.mezz_filepath).split('.')[0],
+                        self.EncodeObject.encode_suffix,
+                        self.EncodeObject.filetype
+                    )
+                )
+            )
 
 
 def main():

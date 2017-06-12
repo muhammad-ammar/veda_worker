@@ -124,13 +124,14 @@ class Video:
                 VideoObject=self
             )
             video_dict = VV.get_video_attributes()
-            self.mezz_extension = self.mezz_filepath.split('.')[-1]
+            self.mezz_extension = str(os.path.splitext(self.mezz_filepath)[1]).replace('.', '')
             self.mezz_bitrate = 0
             self.mezz_title = self.mezz_filepath.split('/')[-1]
             self.mezz_filesize = video_dict['filesize']
             self.mezz_resolution = video_dict['resolution']
-            self.mezz_duration =  video_dict['duration']
+            self.mezz_duration = video_dict['duration']
             self.mezz_filepath = self.mezz_filepath
+            self.mezz_bitrate = 'Unparsed'
             self.valid = True
 
 

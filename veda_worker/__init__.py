@@ -155,7 +155,6 @@ class VedaWorker:
           VII. Clean Directory
 
         """
-        # print
         if 'ENCODE_WORKDIR' not in self.workdir:
             self._engine_intake()
 
@@ -181,9 +180,7 @@ class VedaWorker:
         else:
             self._static_pipeline()
 
-        print self.endpoint_url
-
-        if self.endpoint_url is not None:
+        if self.endpoint_url is not None and self.VideoObject.veda_id is not None:
             """
             Integrate with main
             """
@@ -204,12 +201,11 @@ class VedaWorker:
     def _static_pipeline(self):
         self._generate_encode()
         if self.ffcommand is None:
-            print 'No Command'
             return None
 
         self._execute_encode()
         self._validate_encode()
-        if self.encoded is True:
+        if self.encoded is True and self.VideoObject.veda_id is not None:
             self._deliver_file()
 
     def _hls_pipeline(self):
@@ -219,7 +215,7 @@ class VedaWorker:
         """
         if not os.path.exists(os.path.join(self.workdir, self.source_file)):
             ErrorObject().print_error(
-                message='Source File (local) NOT FOUND',
+                message='Source File (local) NOT FOUND - HLS',
             )
             return None
         os.chdir(self.workdir)
@@ -308,7 +304,8 @@ class VedaWorker:
         self.ffcommand = CommandGenerate(
             VideoObject=self.VideoObject,
             EncodeObject=E,
-            jobid=self.jobid
+            jobid=self.jobid,
+            workdir=self.workdir
         ).generate()
 
     def _execute_encode(self):
@@ -320,7 +317,7 @@ class VedaWorker:
                 os.path.join(self.workdir, self.source_file)
         ):
             ErrorObject().print_error(
-                message='Source File (local) NOT FOUND',
+                message='Source File (local) NOT FOUND - Input',
             )
             return None
 
@@ -335,13 +332,12 @@ class VedaWorker:
         Output.status_bar(process=process)
         # to be polite
         print
-
         self.output_file = self.ffcommand.split('/')[-1]
         if not os.path.exists(
                 os.path.join(self.workdir, self.output_file)
         ):
             ErrorObject().print_error(
-                message='Source File (local) NOT FOUND',
+                message='Source File (local) NOT FOUND - Output',
             )
 
     def _validate_encode(self):
@@ -368,7 +364,8 @@ class VedaWorker:
             VideoObject=self.VideoObject,
             encode_profile=self.encode_profile,
             output_file=self.output_file,
-            jobid=self.jobid
+            jobid=self.jobid,
+            workdir=self.workdir
         )
         D1.run()
         self.delivered = D1.delivered

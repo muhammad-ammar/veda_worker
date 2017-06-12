@@ -32,17 +32,7 @@ class Deliverable():
         self.encode_profile = encode_profile
         self.output_file = output_file
         self.jobid = kwargs.get('jobid', None)
-        if self.jobid is None:
-            self.workdir = os.path.join(
-                homedir,
-                'ENCODE_WORKDIR'
-            )
-        else:
-            self.workdir = os.path.join(
-                homedir,
-                'ENCODE_WORKDIR',
-                self.jobid
-            )
+        self.workdir = kwargs.get('workdir', None)
         self.endpoint_url = None
         self.hash_sum = 0
         self.upload_filesize = 0
@@ -52,6 +42,19 @@ class Deliverable():
         """
         Get file particulars, upload to s3
         """
+        if self.workdir is None:
+            if self.jobid is None:
+                self.workdir = os.path.join(
+                    homedir,
+                    'ENCODE_WORKDIR'
+                )
+            else:
+                self.workdir = os.path.join(
+                    homedir,
+                    'ENCODE_WORKDIR',
+                    self.jobid
+                )
+
         # file size
         self.upload_filesize = os.stat(
             os.path.join(self.workdir, self.output_file)

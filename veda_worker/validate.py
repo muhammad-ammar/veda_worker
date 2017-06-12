@@ -69,7 +69,7 @@ class ValidateVideo:
         )
 
         for line in iter(p.stdout.readline, b''):
-            print line
+
             if 'No such file or directory' in line:
                 return False
 
@@ -126,7 +126,7 @@ class ValidateVideo:
             )
             return None
         # Filesize
-        return_dict.setdefault('duration', os.stat(self.filepath).st_size)
+        return_dict.setdefault('filesize', os.stat(self.filepath).st_size)
 
         # ffprobe file information
         ffcommand = 'ffprobe -hide_banner '
