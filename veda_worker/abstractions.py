@@ -7,6 +7,8 @@ from reporting import ErrorObject, Output
 import generate_apitoken
 from config import WorkerSetup
 from global_vars import *
+from validate import ValidateVideo
+
 
 """Disable insecure warning for requests lib"""
 requests.packages.urllib3.disable_warnings()
@@ -44,7 +46,7 @@ class Video:
         self.mezz_filesize = None
         self.mezz_resolution = None
         self.mezz_duration = None
-        self.mezz_filepath = None
+        self.mezz_filepath = kwargs.get('mezz_filepath', None)
         # optional
         self.course_url = kwargs.get('course_url', [])
 
@@ -58,60 +60,77 @@ class Video:
         """
         test case
         """
-        if self.veda_id is None:
+        if self.veda_id is None and self.mezz_filepath is None:
+            print self.mezz_filepath
             self.mezz_extension = '.mp4'
             self.mezz_title = TEST_VIDEO_FILE
             self.mezz_filepath = os.path.join(TEST_VIDEO_DIR, TEST_VIDEO_FILE)
             self.valid = True
             return None
-
-        """
-        Generated Token
-        """
-        veda_token = generate_apitoken.veda_tokengen()
-        if veda_token is None:
-            return None
-
-        data = {
-            'edx_id': self.veda_id,
-        }
-        headers = {
-            'Authorization': 'Token ' + veda_token,
-            'content-type': 'application/json'
-        }
-        x = requests.get(
-            '/'.join((settings['veda_api_url'], 'videos', '')),
-            params=data,
-            headers=headers
-        )
-
-        vid_dict = json.loads(x.text)
-        if len(vid_dict['results']) == 0:
-            return None
-
-        for v in vid_dict['results']:
-            """
-            Yeah this is horrible, but it's tied to VEDA's model
+        if self.veda_id is not None:
 
             """
-            self.vid_pk = v['id']
-            self.class_id = v['inst_class']
-            self.val_id = v['studio_id']
-            self.mezz_extension = v['video_orig_extension']
-            self.mezz_bitrate = v['video_orig_bitrate']
-            self.mezz_title = v['client_title']
-            self.mezz_filesize = v['video_orig_filesize']
-            # Do some field cleaning in case of SAR/DAR legacy errors
-            mezz_resolution = v['video_orig_resolution'].strip().split(' ')[0]
-            self.mezz_resolution = mezz_resolution
-            '''Clean from unicode (00:00:00.53)'''
-            uni_duration = v['video_orig_duration']
-            self.mezz_duration = Output._seconds_from_string(uni_duration)
-            self.mezz_filepath = '/'.join((
-                'https://s3.amazonaws.com',
-                settings['aws_storage_bucket'],
-                self.veda_id + '.' + self.mezz_extension
-            ))
+            Generated Token
+            """
+            veda_token = generate_apitoken.veda_tokengen()
+            if veda_token is None:
+                return None
+
+            data = {
+                'edx_id': self.veda_id,
+            }
+            headers = {
+                'Authorization': 'Token ' + veda_token,
+                'content-type': 'application/json'
+            }
+            x = requests.get(
+                '/'.join((settings['veda_api_url'], 'videos', '')),
+                params=data,
+                headers=headers
+            )
+
+            vid_dict = json.loads(x.text)
+            if len(vid_dict['results']) == 0:
+                return None
+
+            for v in vid_dict['results']:
+                """
+                Yeah this is horrible, but it's tied to VEDA's model
+
+                """
+                self.vid_pk = v['id']
+                self.class_id = v['inst_class']
+                self.val_id = v['studio_id']
+                self.mezz_extension = v['video_orig_extension']
+                self.mezz_bitrate = v['video_orig_bitrate']
+                self.mezz_title = v['client_title']
+                self.mezz_filesize = v['video_orig_filesize']
+                # Do some field cleaning in case of SAR/DAR legacy errors
+                mezz_resolution = v['video_orig_resolution'].strip().split(' ')[0]
+                self.mezz_resolution = mezz_resolution
+                '''Clean from unicode (00:00:00.53)'''
+                uni_duration = v['video_orig_duration']
+                self.mezz_duration = Output.seconds_from_string(uni_duration)
+                self.mezz_filepath = '/'.join((
+                    'https://s3.amazonaws.com',
+                    settings['aws_storage_bucket'],
+                    self.veda_id + '.' + self.mezz_extension
+                ))
+                self.valid = True
+        else:
+            print 'Getting data'
+            VV = ValidateVideo(
+                filepath=self.mezz_filepath,
+                VideoObject=self
+            )
+            video_dict = VV.get_video_attributes()
+            self.mezz_extension = self.mezz_filepath.split('.')[-1]
+            self.mezz_bitrate = 0
+            self.mezz_title = self.mezz_filepath.split('/')[-1]
+            self.mezz_filesize = video_dict['filesize']
+            self.mezz_resolution = video_dict['resolution']
+            self.mezz_duration =  video_dict['duration']
+            self.mezz_filepath = self.mezz_filepath
             self.valid = True
 
 
@@ -175,8 +194,15 @@ class Encode:
                 )
                 return None
         else:
+            '''
+            filetype': u'mp4', u'encode_suffix': u'DTH', u'resolution': 720, u'rate_factor'
+            '''
             encode_data = self._read_encodes()
-            print encode_data[self.profile_name]
+            self.resolution = encode_data[self.profile_name]['resolution']
+            self.rate_factor = encode_data[self.profile_name]['rate_factor']
+            self.filetype = encode_data[self.profile_name]['filetype']
+            self.encode_suffix = encode_data[self.profile_name]['encode_suffix']
+            self.encode_pk = None
 
     def _read_encodes(self):
         if self.encode_library is None:

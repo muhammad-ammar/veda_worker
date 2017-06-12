@@ -11,7 +11,7 @@ import shutil
 
 from boto.s3.connection import S3Connection
 from os.path import expanduser
-# from vhls import VHLS
+from vhls import VHLS
 
 from abstractions import Video, Encode
 from api_communicate import UpdateAPIStatus
@@ -123,10 +123,15 @@ class VedaWorker:
                 message='No Encode Profile Specified'
             )
             return None
-
         self.VideoObject = Video(
-            veda_id=self.veda_id
+            veda_id=self.veda_id,
         )
+        if self.source_file is not None:
+            self.VideoObject.mezz_filepath = os.path.join(
+                self.workdir,
+                self.source_file
+            )
+
         self.VideoObject.activate()
         if self.VideoObject.valid is False:
             ErrorObject().print_error(

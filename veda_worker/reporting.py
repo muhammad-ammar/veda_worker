@@ -52,7 +52,7 @@ class Output(object):
     Various reporting methods
     """
     @staticmethod
-    def _seconds_from_string(duration):
+    def seconds_from_string(duration):
 
         hours = float(duration.split(':')[0])
         minutes = float(duration.split(':')[1])
@@ -79,7 +79,7 @@ class Output(object):
 
                 if "Duration: " in line:
                     dur = line.split('Duration: ')[1].split(',')[0].strip()
-                    duration = Output()._seconds_from_string(duration=dur)
+                    duration = Output().seconds_from_string(duration=dur)
 
             else:
                 if 'frame=' in line:
