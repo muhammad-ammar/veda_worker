@@ -25,7 +25,6 @@ or via celery connection to VEDA (VEDA will send video_id and encode_profile via
 homedir = expanduser("~")
 
 
-
 class CommandGenerate:
 
     def __init__(self, VideoObject, EncodeObject, **kwargs):

@@ -113,10 +113,16 @@ class VideoImages(object):
             return None
 
         image_keys = []
+
+        if self.settings['aws_video_images_prefix'] is not None:
+            prefix = self.settings['aws_video_images_prefix']
+        else:
+            prefix = ''
+
         for generated_image in generated_images:
             upload_key = Key(bucket)
             upload_key.key = '{prefix}/{generated_image}'.format(
-                prefix=self.settings['aws_video_images_prefix'] if self.settings['aws_video_images_prefix'] is not None else '',
+                prefix=prefix,
                 generated_image=os.path.basename(generated_image)
             )
             image_keys.append(upload_key.key)

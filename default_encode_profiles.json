@@ -31,6 +31,13 @@
             "resolution":720,
             "rate_factor":27,
             "filetype":"mp4"
+        },
+        "hls":{
+            "encode_suffix":"HLS",`
+            "resolution":0,
+            "rate_factor":0,
+            "filetype":"m3u8"
         }
+
     }
 }
