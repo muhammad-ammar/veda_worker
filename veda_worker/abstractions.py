@@ -118,7 +118,6 @@ class Video:
                 ))
                 self.valid = True
         else:
-            print 'Getting data'
             VV = ValidateVideo(
                 filepath=self.mezz_filepath,
                 VideoObject=self
