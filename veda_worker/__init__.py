@@ -298,7 +298,7 @@ class VedaWorker:
             VideoObject=self.VideoObject,
             EncodeObject=E,
             jobid=self.jobid,
-            workdir=self.workdir
+            workdir=self.workdir,
             settings=self.settings
         ).generate()
 
