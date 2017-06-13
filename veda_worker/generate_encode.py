@@ -24,20 +24,23 @@ or via celery connection to VEDA (VEDA will send video_id and encode_profile via
 """
 homedir = expanduser("~")
 
-WS = WorkerSetup()
-if os.path.exists(WS.instance_yaml):
-    WS.run()
-settings = WS.settings_dict
 
 
 class CommandGenerate:
 
     def __init__(self, VideoObject, EncodeObject, **kwargs):
+        self.settings = kwargs.get('settings', self.settings_setup())
         self.VideoObject = VideoObject
         self.EncodeObject = EncodeObject
         self.jobid = kwargs.get('jobid', None)
         self.workdir = kwargs.get('workdir', None)
         self.ffcommand = []
+
+    def settings_setup(self):
+        WS = WorkerSetup()
+        if os.path.exists(WS.instance_yaml):
+            WS.run()
+        return WS.settings_dict
 
     def generate(self):
         """
@@ -85,11 +88,11 @@ class CommandGenerate:
         """
         Begin Command Proper
         """
-        self.ffcommand.append(settings['ffmpeg_compiled'])
+        self.ffcommand.append(self.settings['ffmpeg_compiled'])
         self.ffcommand.append("-hide_banner")
         self.ffcommand.append("-y")
         self.ffcommand.append("-i")
-        if self.VideoObject.veda_id is not None:
+        if self.VideoObject.veda_id is not None and len(self.VideoObject.mezz_extension) > 0:
             self.ffcommand.append(os.path.join(
                 self.workdir,
                 '.'.join((
@@ -97,7 +100,7 @@ class CommandGenerate:
                     self.VideoObject.mezz_extension
                 ))
             ))
-        else:
+        elif len(self.VideoObject.mezz_extension) > 0:
             self.ffcommand.append(os.path.join(
                 self.workdir,
                 '.'.join((
@@ -105,7 +108,11 @@ class CommandGenerate:
                     self.VideoObject.mezz_extension
                 ))
             ))
-
+        else:
+            self.ffcommand.append(os.path.join(
+                self.workdir,
+                os.path.basename(self.VideoObject.mezz_filepath)
+            ))
         if self.EncodeObject.filetype != 'mp3':
             self.ffcommand.append("-c:v")
         else:
@@ -180,7 +187,7 @@ class CommandGenerate:
             self.ffcommand.append("scale=" + str(horiz_resolution) + ":" + str(self.EncodeObject.resolution))
 
         elif aspect_fix is True:
-            if mezz_aspect_ratio > settings['target_aspect_ratio']:
+            if mezz_aspect_ratio > self.settings['target_aspect_ratio']:
                 # LETTERBOX
                 scalar = (int(self.EncodeObject.resolution) - (horiz_resolution / mezz_aspect_ratio)) / 2
 
@@ -191,7 +198,7 @@ class CommandGenerate:
                 scalar_command += ":0:" + str(int(scalar))
                 self.ffcommand.append(scalar_command)
 
-            if mezz_aspect_ratio < settings['target_aspect_ratio']:
+            if mezz_aspect_ratio < self.settings['target_aspect_ratio']:
                 # PILLARBOX
                 scalar = (horiz_resolution - (mezz_aspect_ratio * int(self.EncodeObject.resolution))) / 2
 

@@ -165,7 +165,8 @@ class VedaWorker:
                 video_object=self.VideoObject,
                 work_dir=self.workdir,
                 source_file=self.source_file,
-                jobid=self.jobid
+                jobid=self.jobid,
+                settings=self.settings
             ).create_and_update()
             # Run HLS encode
             self._hls_pipeline()
@@ -298,6 +299,7 @@ class VedaWorker:
             EncodeObject=E,
             jobid=self.jobid,
             workdir=self.workdir
+            settings=self.settings
         ).generate()
 
     def _execute_encode(self):

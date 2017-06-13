@@ -17,11 +17,6 @@ from veda_worker.reporting import ErrorObject, Output
 from veda_worker.config import WorkerSetup
 
 
-WS = WorkerSetup()
-if os.path.exists(WS.instance_yaml):
-    WS.run()
-
-SETTINGS = WS.settings_dict
 HOME_DIR = expanduser("~")
 IMAGE_COUNT = 3
 
@@ -37,6 +32,13 @@ class VideoImages(object):
         self.source_file = source_file
         self.source_video_file = os.path.join(self.work_dir, self.source_file)
         self.jobid = kwargs.get('jobid', None)
+        self.settings = kwargs.get('settings', self.settings_setup())
+
+    def settings_setup(self):
+        WS = WorkerSetup()
+        if os.path.exists(WS.instance_yaml):
+            WS.run()
+        return WS.settings_dict
 
     def create_and_update(self):
         """
@@ -70,7 +72,7 @@ class VideoImages(object):
                 r'select="eq(pict_type\,PICT_TYPE_I)*gt(scene\,0.4)"' \
                 ',scale=1280:720 -vsync vfr -vframes 1 {output_file}' \
                 ' -hide_banner -y'.format(
-                    ffmpeg=SETTINGS['ffmpeg_compiled'],
+                    ffmpeg=self.settings['ffmpeg_compiled'],
                     position=position,
                     video_file=self.source_video_file,
                     output_file=generated_images[-1]
@@ -98,12 +100,12 @@ class VideoImages(object):
         Upload auto generated images to S3.
         """
         s3_connection = S3Connection(
-            SETTINGS['aws_video_images_access_key'],
-            SETTINGS['aws_video_images_secret_key']
+            self.settings['aws_video_images_access_key'],
+            self.settings['aws_video_images_secret_key']
         )
 
         try:
-            bucket = s3_connection.get_bucket(SETTINGS['aws_video_images_bucket'])
+            bucket = s3_connection.get_bucket(self.settings['aws_video_images_bucket'])
         except S3ResponseError:
             ErrorObject().print_error(
                 message='Invalid Storage Bucket for Video Images'
@@ -114,7 +116,7 @@ class VideoImages(object):
         for generated_image in generated_images:
             upload_key = Key(bucket)
             upload_key.key = '{prefix}/{generated_image}'.format(
-                prefix=SETTINGS['aws_video_images_prefix'] if SETTINGS['aws_video_images_prefix'] is not None else '',
+                prefix=self.settings['aws_video_images_prefix'] if self.settings['aws_video_images_prefix'] is not None else '',
                 generated_image=os.path.basename(generated_image)
             )
             image_keys.append(upload_key.key)
@@ -138,7 +140,7 @@ class VideoImages(object):
             }
 
             response = requests.post(
-                SETTINGS['val_video_images_url'],
+                self.settings['val_video_images_url'],
                 data=json.dumps(data),
                 headers=val_headers,
                 timeout=20
