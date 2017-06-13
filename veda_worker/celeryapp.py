@@ -1,19 +1,17 @@
-
 from __future__ import absolute_import
-import os
-import sys
-from os.path import expanduser
 from celery import Celery
+import os
+from os.path import expanduser
 import shutil
+import sys
+
+from veda_worker.config import WorkerSetup
 
 """
 
 Start Celery Worker (if VEDA-attached node)
 
 """
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from config import WorkerSetup
 
 WS = WorkerSetup()
 if os.path.exists(WS.instance_yaml):
@@ -22,15 +20,18 @@ settings = WS.settings_dict
 
 homedir = expanduser("~")
 
+
 def cel_Start():
     app = Celery(
-        settings['celery_app_name'],
-        broker='amqp://' + settings['rabbitmq_user'] + \
-            ':' + settings['rabbitmq_pass'] + '@' + settings['rabbitmq_broker'] + ':5672//',
-        backend='amqp://' + settings['rabbitmq_user'] + \
-            ':' + settings['rabbitmq_pass'] + '@' + settings['rabbitmq_broker'] + ':5672//',
+        settings.setdefault('celery_app_name', ''),
+        broker='amqp://' + settings.setdefault('rabbitmq_user', '') +
+               ':' + settings.setdefault('rabbitmq_pass', '') +
+               '@' + settings.setdefault('rabbitmq_broker', '') + ':5672//',
+        backend='amqp://' + settings.setdefault('rabbitmq_user', '') +
+                ':' + settings.setdefault('rabbitmq_pass', '') +
+                '@' + settings.setdefault('rabbitmq_broker', '') + ':5672//',
         include=['celeryapp']
-        )
+    )
 
     app.conf.update(
         BROKER_CONNECTION_TIMEOUT=60,
@@ -38,9 +39,10 @@ def cel_Start():
         CELERY_TASK_RESULT_EXPIRES=10,
         CELERYD_PREFETCH_MULTIPLIER=1,
         CELERY_ACCEPT_CONTENT=['pickle', 'json', 'msgpack', 'yaml']
-        )
+    )
 
     return app
+
 
 app = cel_Start()
 
@@ -51,7 +53,7 @@ def worker_task_fire(veda_id, encode_profile, jobid):
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         'bin',
         'veda_worker_cli'
-        )
+    )
     task_command += ' '
     task_command += '-v ' + veda_id
     task_command += ' '
@@ -65,19 +67,19 @@ def worker_task_fire(veda_id, encode_profile, jobid):
     Add secondary directory protection
     """
     if jobid is not None and os.path.exists(
-        os.path.join(
-            homedir,
-            'ENCODE_WORKDIR',
-            jobid
+            os.path.join(
+                homedir,
+                'ENCODE_WORKDIR',
+                jobid
             )
-        ):
+    ):
         shutil.rmtree(
             os.path.join(
                 homedir,
                 'ENCODE_WORKDIR',
                 jobid
-                )
             )
+        )
 
 
 @app.task(name='supervisor_deliver')

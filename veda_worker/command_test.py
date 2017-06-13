@@ -2,12 +2,13 @@
 import os
 import sys
 
-"""
-generate and fire a test task 
-
-"""
-
 import celeryapp
+
+"""
+generate and fire a test task
+
+"""
+
 
 def fire_task():
 
@@ -18,8 +19,7 @@ def fire_task():
     celeryapp.worker_task_fire.apply_async(
         (veda_id, encode_profile, jobid),
         queue='test_node'
-        )
+    )
 
 if __name__ == '__main__':
     sys.exit(fire_task())
-

@@ -1,13 +1,17 @@
 
-import os
-import sys
 import boto
 import boto.s3
 from boto.s3.key import Key
-import shutil
 import hashlib
-
+import os
 from os.path import expanduser
+import sys
+import shutil
+
+from global_vars import *
+from reporting import ErrorObject
+from config import WorkerSetup
+
 homedir = expanduser("~")
 
 """
@@ -15,16 +19,10 @@ Gets specified Video and Encode object, and delivers file to endpoint
 from VEDA_WORK_DIR, retrieves and checks URL, and passes info to objects
 
 """
-
-from global_vars import *
-from reporting import ErrorObject
-from config import WorkerSetup
-
 WS = WorkerSetup()
 if os.path.exists(WS.instance_yaml):
     WS.run()
 settings = WS.settings_dict
-
 
 
 class Deliverable():
@@ -34,40 +32,42 @@ class Deliverable():
         self.encode_profile = encode_profile
         self.output_file = output_file
         self.jobid = kwargs.get('jobid', None)
-        if self.jobid is None:
-            self.workdir = os.path.join(
-                homedir,
-                'ENCODE_WORKDIR'
-                )
-        else:
-            self.workdir = os.path.join(
-                homedir,
-                'ENCODE_WORKDIR',
-                self.jobid
-                )
-        #---#
+        self.workdir = kwargs.get('workdir', None)
         self.endpoint_url = None
         self.hash_sum = 0
         self.upload_filesize = 0
         self.delivered = False
 
-
     def run(self):
         """
         Get file particulars, upload to s3
         """
+        if self.workdir is None:
+            if self.jobid is None:
+                self.workdir = os.path.join(
+                    homedir,
+                    'ENCODE_WORKDIR'
+                )
+            else:
+                self.workdir = os.path.join(
+                    homedir,
+                    'ENCODE_WORKDIR',
+                    self.jobid
+                )
+
         # file size
         self.upload_filesize = os.stat(
             os.path.join(self.workdir, self.output_file)
-            ).st_size
+        ).st_size
         # hash sum
         self.hash_sum = hashlib.md5(
             open(
                 os.path.join(
-                    self.workdir, 
+                    self.workdir,
                     self.output_file
-                    ), 'rb').read()
-            ).hexdigest()
+                ), 'rb'
+            ).read()
+        ).hexdigest()
 
         if self.upload_filesize < MULTI_UPLOAD_BARRIER:
             """
@@ -85,11 +85,10 @@ class Deliverable():
 
         self.endpoint_url = '/'.join((
             'https://s3.amazonaws.com',
-                settings['aws_deliver_bucket'], 
-                self.output_file
-                ))
+            settings['aws_deliver_bucket'],
+            self.output_file
+        ))
         return True
-
 
     def _s3_upload(self):
         """
@@ -100,22 +99,21 @@ class Deliverable():
             conn = boto.connect_s3(
                 settings['aws_deliver_access_key'],
                 settings['aws_deliver_secret_key']
-                )
+            )
             delv_bucket = conn.get_bucket(settings['aws_deliver_bucket'])
 
         except:
             ErrorObject().print_error(
-                message = 'Deliverable Fail: s3 Connection Error - Singleton'
-                )
+                message='Deliverable Fail: s3 Connection Error - Singleton'
+            )
             return False
 
         upload_key = Key(delv_bucket)
         upload_key.key = self.output_file
         upload_key.set_contents_from_filename(
             os.path.join(self.workdir, self.output_file)
-            )
+        )
         return True
-
 
     def _boto_multipart(self):
         """
@@ -126,45 +124,42 @@ class Deliverable():
         """
         if not os.path.exists(
             os.path.join(
-                self.workdir, 
+                self.workdir,
                 self.output_file.split('.')[0]
-                )
-            ):
+            )
+        ):
             os.mkdir(os.path.join(
-                self.workdir, 
+                self.workdir,
                 self.output_file.split('.')[0]
-                ))
+            ))
 
         os.chdir(
             os.path.join(self.workdir, self.output_file.split('.')[0])
-            )
-        """
-        Split File into chunks
-        """ 
-        split_command = 'split -b10m -a5' ##5 part names of 5mb
+        )
+
+        # Split File into chunks
+        split_command = 'split -b10m -a5'  # 5 part names of 5mb
         sys.stdout.write('%s : %s\n' % (self.output_file, 'Generating Multipart'))
         os.system(' '.join((split_command, os.path.join(self.workdir, self.output_file))))
         sys.stdout.flush()
 
-        """
-        Connect to s3
-        """
+        # Connect to s3
         try:
             c = boto.connect_s3(
                 settings['aws_deliver_access_key'],
                 settings['aws_deliver_secret_key']
-                )
+            )
             b = c.lookup(settings['aws_deliver_bucket'])
         except:
             ErrorObject().print_error(
-                message = 'Deliverable Fail: s3 Connection Error - Multipart'
-                )
+                message='Deliverable Fail: s3 Connection Error - Multipart'
+            )
             return False
 
-        if b == None:
+        if b is None:
             ErrorObject().print_error(
-                message = 'Deliverable Fail: s3 Bucket Connection Error'
-                )
+                message='Deliverable Fail: s3 Bucket Connection Error'
+            )
             return False
 
         """
@@ -173,24 +168,23 @@ class Deliverable():
         mp = b.initiate_multipart_upload(self.output_file)
 
         x = 1
-        for file in sorted(os.listdir(
+        for fle in sorted(os.listdir(
             os.path.join(
-                self.workdir, 
+                self.workdir,
                 self.output_file.split('.')[0]
-                )
-            )):
-            sys.stdout.write('%s : %s\r' % (file, 'uploading part'))
-            fp = open(file, 'rb')
+            )
+        )):
+            sys.stdout.write('%s : %s\r' % (fle, 'uploading part'))
+            fp = open(fle, 'rb')
             mp.upload_part_from_file(fp, x)
             fp.close()
-            sys.stdout.flush()            
+            sys.stdout.flush()
             x += 1
         sys.stdout.write('\n')
         mp.complete_upload()
-        """Clean up multipart"""
+        # Clean up multipart
         shutil.rmtree(os.path.join(self.workdir, self.output_file.split('.')[0]))
         return True
-
 
 
 def main():
@@ -199,4 +193,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
-

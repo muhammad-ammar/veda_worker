@@ -3,17 +3,15 @@ import os
 import sys
 import unittest
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from veda_worker.abstractions import Video, Encode
+from veda_worker.config import WorkerSetup
+from veda_worker.generate_encode import CommandGenerate
+
 """
 test Encode Abstraction and Command Gen
 
 """
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    )
-from reporting import ErrorObject
-from config import WorkerSetup
-from abstractions import Video, Encode
-from generate_encode import CommandGenerate
 
 
 class Test_Encode_Command(unittest.TestCase):
@@ -30,17 +28,16 @@ class Test_Encode_Command(unittest.TestCase):
         # Video
         self.VideoObject = Video(
             veda_id='XXXXXXXX2016-V00TEST',
-            )
+        )
         self.VideoObject.activate()
 
         # Encode
         self.E = Encode(
             VideoObject=self.VideoObject,
             profile_name=self.encode_profile
-            )
+        )
         self.E.pull_data()
         self.ffcommand = None
-
 
     def test_generate_command(self):
         if not os.path.exists(self.WS.instance_yaml):
@@ -51,7 +48,6 @@ class Test_Encode_Command(unittest.TestCase):
         Generate the (shell) command / Encode Object
         """
         self.assertTrue(self.VideoObject.valid is True)
-        # self.assertTrue(self.VideoObject.valid is True)
 
         """
         Generate the Encode Object
@@ -63,9 +59,9 @@ class Test_Encode_Command(unittest.TestCase):
         Generate the (shell) command
         """
         self.ffcommand = CommandGenerate(
-            VideoObject = self.VideoObject,
-            EncodeObject = self.E
-            ).generate()
+            VideoObject=self.VideoObject,
+            EncodeObject=self.E
+        ).generate()
 
         self.assertFalse(self.ffcommand is None)
 
@@ -77,9 +73,9 @@ class Test_Encode_Command(unittest.TestCase):
         # TODO: destination file, etc.
 
 
-
 def main():
     unittest.main()
+
 
 if __name__ == '__main__':
     sys.exit(main())
