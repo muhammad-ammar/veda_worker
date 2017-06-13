@@ -36,9 +36,6 @@ boto.config.set('Boto', 'http_socket_timeout', '10')
 class VedaWorker:
 
     def __init__(self, **kwargs):
-        """
-        Init settings
-        """
         self.settings = None
         self.veda_id = kwargs.get('veda_id', None)
         self.setup = kwargs.get('setup', False)
@@ -54,10 +51,7 @@ class VedaWorker:
             )
         )
 
-
-        """
-        Bad working directory stuff
-        """
+        # Working Dir Config
         self.workdir = kwargs.get('workdir', None)
         if self.workdir is None:
             if self.jobid is None:
@@ -81,13 +75,11 @@ class VedaWorker:
                     'ENCODE_WORKDIR'
                 ))
 
-        """#---#"""
         self.ffcommand = None
         self.source_file = kwargs.get('source_file', None)
         self.output_file = None
         self.endpoint_url = None
-
-        """Pipeline Steps"""
+        # Pipeline Steps
         self.encoded = False
         self.delivered = False
 
